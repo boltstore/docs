@@ -1,0 +1,15 @@
+{
+  "name": "@boltstore/docs",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Boltstore documentation site",
+  "scripts": {
+    "dev": "vitepress dev src",
+    "build": "vitepress build src",
+    "preview": "vitepress preview src"
+  },
+  "devDependencies": {
+    "vitepress": "^1.3.0"
+  },
+  "license": "MIT"
+}
