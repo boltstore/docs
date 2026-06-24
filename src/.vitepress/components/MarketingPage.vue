@@ -15,7 +15,7 @@
             <span style="background: linear-gradient(135deg, #26c9ff, #00bfff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">SQLite</span> Database<br>Platform
           </h1>
           <p style="font-size: 1.25rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: 2.5rem; max-width: 36rem; margin-left: auto; margin-right: auto;">
-            Self-hostable, managed SQLite with an HTTP API and JavaScript SDK. Create databases in seconds, query from anywhere, scale to zero.
+            Self-hostable, managed SQLite with an HTTP API and JavaScript SDK. Create databases in seconds, query from anywhere, run anywhere.
           </p>
           <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap;">
             <a href="/guide/getting-started" class="btn-primary" style="padding: 0.875rem 1.75rem; font-size: 1rem; border-radius: 8px; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; font-weight: 500;">
@@ -107,14 +107,14 @@
               <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--accent-400);"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
             </div>
             <h3 style="font-weight: 600; margin-bottom: 0.5rem; font-size: 1.125rem;">JavaScript SDK</h3>
-            <p style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6;">TypeScript-first client with typed queries, connection pooling, and automatic retries built-in.</p>
+            <p style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6;">TypeScript-first client with typed records, a query builder, and raw SQL support.</p>
           </div>
           <div class="feature-card card-hover">
             <div style="width: 2.5rem; height: 2.5rem; border-radius: 8px; background: rgba(0,163,219,0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
               <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--accent-400);"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
             </div>
             <h3 style="font-weight: 600; margin-bottom: 0.5rem; font-size: 1.125rem;">Per-Database Auth</h3>
-            <p style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6;">API keys scoped to individual databases. CORS origins, rate limits, and permissions per database.</p>
+            <p style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6;">API keys scoped to individual databases. CORS origins, read-only flags, and config per database.</p>
           </div>
           <div class="feature-card card-hover">
             <div style="width: 2.5rem; height: 2.5rem; border-radius: 8px; background: rgba(0,163,219,0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
@@ -135,7 +135,7 @@
     </section>
 
     <!-- Code Example -->
-    <section style="padding: 5rem 0; position: relative;">
+    <section style="padding: 5rem 0 7rem; position: relative;">
       <div style="max-width: 72rem; margin: 0 auto; padding: 0 1.5rem;">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start;">
           <div>
@@ -146,7 +146,7 @@
             <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.75rem;">
               <li style="display: flex; align-items: flex-start; gap: 0.75rem;">
                 <svg width="20" height="20" fill="none" stroke="var(--accent-400)" viewBox="0 0 24 24" style="flex-shrink: 0; margin-top: 0.125rem;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                <span style="font-size: 0.875rem; color: var(--text-secondary);">Works on Edge, Serverless, and Node.js</span>
+                <span style="font-size: 0.875rem; color: var(--text-secondary);">Works on Node.js, Bun, Deno, and browsers</span>
               </li>
               <li style="display: flex; align-items: flex-start; gap: 0.75rem;">
                 <svg width="20" height="20" fill="none" stroke="var(--accent-400)" viewBox="0 0 24 24" style="flex-shrink: 0; margin-top: 0.125rem;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
@@ -154,11 +154,11 @@
               </li>
               <li style="display: flex; align-items: flex-start; gap: 0.75rem;">
                 <svg width="20" height="20" fill="none" stroke="var(--accent-400)" viewBox="0 0 24 24" style="flex-shrink: 0; margin-top: 0.125rem;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                <span style="font-size: 0.875rem; color: var(--text-secondary);">Auto-retry with exponential backoff</span>
+                <span style="font-size: 0.875rem; color: var(--text-secondary);">Typed records with query builder</span>
               </li>
               <li style="display: flex; align-items: flex-start; gap: 0.75rem;">
                 <svg width="20" height="20" fill="none" stroke="var(--accent-400)" viewBox="0 0 24 24" style="flex-shrink: 0; margin-top: 0.125rem;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                <span style="font-size: 0.875rem; color: var(--text-secondary);">Connection pooling built-in</span>
+                <span style="font-size: 0.875rem; color: var(--text-secondary);">Raw SQL with parameterised queries</span>
               </li>
             </ul>
           </div>
@@ -171,7 +171,7 @@
                 :class="['tab-btn', { active: activeTab === tab.id }]"
               >{{ tab.label }}</button>
             </div>
-            <div style="position: relative; min-height: 420px;">
+            <div style="position: relative; min-height: 480px; margin-bottom: 2rem;">
               <div v-show="activeTab === 'js'" class="code-block" style="position: absolute; top: 0; left: 0; right: 0;">
                 <pre style="margin: 0;"><span class="code-keyword">import</span> { BoltstoreClient } <span class="code-keyword">from</span> <span class="code-string">'@boltstore/client'</span>;
 
@@ -189,32 +189,26 @@
   .get();
 
 <span class="code-comment">// Run raw SQL</span>
-<span class="code-keyword">const</span> rows = <span class="code-keyword">await</span> client.sql(<span class="code-string">'SELECT * FROM users WHERE created &gt; datetime(&apos;now&apos;, &apos;-7 days&apos;)'</span>);
+<span class="code-keyword">const</span> rows = <span class="code-keyword">await</span> client.sql(<span class="code-string">'SELECT * FROM users WHERE created &gt; ?'</span>, [<span class="code-string">'2026-06-01'</span>]);
 
 console.log(rows);</pre>
               </div>
               <div v-show="activeTab === 'curl'" class="code-block" style="position: absolute; top: 0; left: 0; right: 0;">
                 <pre style="margin: 0;"><span class="code-comment"># Create a database</span>
-curl -X POST http://localhost:8080/v1/dbs \
-  -H <span class="code-string">'Authorization: Bearer boltstore_...'</span> \
+curl -X POST http://localhost:8080/api/databases \
+  -H <span class="code-string">'Authorization: Bearer &lt;admin-session-token&gt;'</span> \
   -H <span class="code-string">'Content-Type: application/json'</span> \
   -d <span class="code-string">'{"name": "app-prod"}'</span>
 
 <span class="code-comment"># Query records</span>
-curl <span class="code-string">'http://localhost:8080/v1/dbs/app-prod/query'</span> \
-  -H <span class="code-string">'Authorization: Bearer boltstore_...'</span> \
-  -H <span class="code-string">'Content-Type: application/json'</span> \
-  -d <span class="code-string">'{
-    "filter": {"active": true},
-    "sort": "-created",
-    "limit": 10
-  }'</span>
+curl http://localhost:8080/api/databases/app-prod/tables/users/records \
+  -H <span class="code-string">'Authorization: Bearer boltstore_...'</span>
 
 <span class="code-comment"># Run raw SQL</span>
-curl <span class="code-string">'http://localhost:8080/v1/dbs/app-prod/sql'</span> \
+curl -X POST http://localhost:8080/api/databases/app-prod/query \
   -H <span class="code-string">'Authorization: Bearer boltstore_...'</span> \
   -H <span class="code-string">'Content-Type: application/json'</span> \
-  -d <span class="code-string">'{"query": "SELECT * FROM users"}'</span></pre>
+  -d <span class="code-string">'{"sql": "SELECT * FROM users", "params": []}'</span></pre>
               </div>
             </div>
           </div>
@@ -262,7 +256,7 @@ curl <span class="code-string">'http://localhost:8080/v1/dbs/app-prod/sql'</span
             <p style="font-size: 0.75rem; color: var(--text-muted);">Self-hostable SQLite database platform with HTTP API and JavaScript SDK.</p>
           </div>
           <div>
-            <h4 style="font-weight: 500; font-size: 0.875rem; margin-bottom: 0.75rem; color: var(--text-primary);">Product</h4>
+            <h4 style="font-weight: 500; font-size: 0.875rem; margin-bottom: 0.75rem; color: var(--text-primary);">Project</h4>
             <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem;">
               <li><a href="/guide/overview" style="font-size: 0.75rem; color: var(--text-muted); text-decoration: none; transition: color 0.15s;">Documentation</a></li>
               <li><a href="https://github.com/boltstore/boltstore" style="font-size: 0.75rem; color: var(--text-muted); text-decoration: none; transition: color 0.15s;">GitHub</a></li>
