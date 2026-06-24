@@ -1,7 +1,7 @@
 <template>
   <div class="marketing-page">
     <!-- Hero -->
-    <section style="position: relative; padding-top: 8rem; padding-bottom: 5rem; overflow: hidden; background: var(--bg-base);">
+    <section class="hero-section" style="position: relative; padding-top: 8rem; padding-bottom: 5rem; overflow: hidden; background: var(--bg-base);">
       <div style="background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0,191,255,0.12), transparent); position: absolute; inset: 0; pointer-events: none;"></div>
       <div style="background-image: linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px), linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px); background-size: 60px 60px; position: absolute; inset: 0; pointer-events: none; opacity: 0.5;"></div>
       <canvas id="heroCanvas" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.7; z-index: 1;"></canvas>
@@ -17,7 +17,7 @@
           <p style="font-size: 1.25rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: 2.5rem; max-width: 36rem; margin-left: auto; margin-right: auto;">
             Self-hostable, managed SQLite with an HTTP API and JavaScript SDK. Create databases in seconds, query from anywhere, run anywhere.
           </p>
-          <div @click="copyInstallCmd" style="background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 2rem; display: inline-flex; align-items: center; gap: 0.75rem; font-family: var(--font-mono); font-size: 0.8125rem; color: var(--text-secondary); cursor: pointer; transition: border-color 0.15s;" title="Click to copy">
+          <div class="install-cmd" @click="copyInstallCmd" style="background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 2rem; display: inline-flex; align-items: center; gap: 0.75rem; font-family: var(--font-mono); font-size: 0.8125rem; color: var(--text-secondary); cursor: pointer; transition: border-color 0.15s;" title="Click to copy">
             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="flex-shrink: 0; color: var(--accent-400);"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
             <span>{{ installCmdText }}</span>
           </div>
@@ -48,7 +48,7 @@
               <span style="padding: 0.375rem 0.75rem; font-size: 0.75rem; font-weight: 500; border-radius: 6px; background: var(--bg-hover); color: var(--text-secondary); border: 1px solid var(--border-default);">Analytics</span>
               <span style="padding: 0.375rem 0.75rem; font-size: 0.75rem; font-weight: 500; border-radius: 6px; background: var(--bg-hover); color: var(--text-secondary); border: 1px solid var(--border-default);">Settings</span>
             </div>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
               <div class="feature-card" style="padding: 1rem;">
                 <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem;">Storage</div>
                 <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">14.79 MB</div>
@@ -91,7 +91,7 @@
           <h2 style="font-size: clamp(1.5rem, 3.5vw, 2.25rem); font-weight: 700; margin-bottom: 1rem; letter-spacing: -0.025em;">Built for Modern Developers</h2>
           <p style="color: var(--text-secondary); font-size: 1.125rem;">Everything you need to ship fast, from local development to production deployment.</p>
         </div>
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+        <div class="features-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
           <div class="feature-card card-hover">
             <div style="width: 2.5rem; height: 2.5rem; border-radius: 8px; background: rgba(0,163,219,0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
               <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--accent-400);"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
@@ -141,7 +141,7 @@
     <!-- Code Example -->
     <section style="padding: 5rem 0 7rem; position: relative;">
       <div style="max-width: 72rem; margin: 0 auto; padding: 0 1.5rem;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start;">
+        <div class="code-example-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start;">
           <div>
             <h2 style="font-size: 1.875rem; font-weight: 700; margin-bottom: 1rem; letter-spacing: -0.025em;">Query in seconds</h2>
             <p style="color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.6; font-size: 1.125rem;">
@@ -243,7 +243,7 @@ curl -X POST http://localhost:8080/api/databases/app-prod/query \
     <!-- Footer -->
     <footer style="border-top: 1px solid var(--border-default); padding: 3rem 0; background: var(--bg-surface);">
       <div style="max-width: 80rem; margin: 0 auto; padding: 0 1.5rem;">
-        <div style="display: flex; flex-direction: row; justify-content: space-between; gap: 2rem; margin-bottom: 2rem;">
+        <div class="footer-row" style="display: flex; flex-direction: row; justify-content: space-between; gap: 2rem; margin-bottom: 2rem;">
           <div>
             <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
               <svg width="20" height="20" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -275,7 +275,7 @@ curl -X POST http://localhost:8080/api/databases/app-prod/query \
             </ul>
           </div>
         </div>
-        <div style="border-top: 1px solid var(--border-subtle); padding-top: 1.5rem; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 1rem;">
+        <div class="footer-bottom" style="border-top: 1px solid var(--border-subtle); padding-top: 1.5rem; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 1rem;">
           <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">2026 Boltstore. MIT Licensed.</p>
         </div>
       </div>
@@ -452,3 +452,36 @@ onMounted(() => {
   animate();
 })
 </script>
+
+<style scoped>
+@media (max-width: 767px) {
+  .hero-section {
+    padding-top: 4rem !important;
+    padding-bottom: 3rem !important;
+  }
+  .features-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .code-example-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .stats-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  .footer-row {
+    flex-direction: column !important;
+    text-align: center;
+  }
+  .footer-bottom {
+    flex-direction: column !important;
+    text-align: center;
+  }
+  .install-cmd {
+    font-size: 0.6875rem !important;
+    padding: 0.5rem 0.75rem !important;
+    max-width: calc(100vw - 3rem);
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+</style>

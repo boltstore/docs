@@ -47,4 +47,10 @@ function triggerSearch() {
 .nav-search-trigger:hover {
   color: var(--text-primary);
 }
+
+@media (max-width: 767px) {
+  .nav-search-trigger {
+    display: none !important;
+  }
+}
 </style>

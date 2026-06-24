@@ -571,3 +571,16 @@ html {
   padding-left: 0 !important;
   padding-right: 0 !important;
 }
+
+/* Mobile overrides for doc pages */
+@media (max-width: 767px) {
+  .VPDoc.has-aside .content-container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  .vp-doc table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
