@@ -17,6 +17,10 @@
           <p style="font-size: 1.25rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: 2.5rem; max-width: 36rem; margin-left: auto; margin-right: auto;">
             Self-hostable, managed SQLite with an HTTP API and JavaScript SDK. Create databases in seconds, query from anywhere, run anywhere.
           </p>
+          <div @click="copyInstallCmd" style="background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 2rem; display: inline-flex; align-items: center; gap: 0.75rem; font-family: var(--font-mono); font-size: 0.8125rem; color: var(--text-secondary); cursor: pointer; transition: border-color 0.15s;" title="Click to copy">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="flex-shrink: 0; color: var(--accent-400);"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            <span>{{ installCmdText }}</span>
+          </div>
           <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap;">
             <a href="/guide/getting-started" class="btn-primary" style="padding: 0.875rem 1.75rem; font-size: 1rem; border-radius: 8px; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; font-weight: 500;">
               Get Started
@@ -281,6 +285,14 @@ curl -X POST http://localhost:8080/api/databases/app-prod/query \
 
 <script setup>
 import { ref, onMounted } from 'vue'
+
+const installCmdText = ref('curl -fsSL https://boltstore.dev/install.sh | sh')
+
+function copyInstallCmd() {
+  navigator.clipboard.writeText('curl -fsSL https://boltstore.dev/install.sh | sh')
+  installCmdText.value = 'Copied!'
+  setTimeout(() => { installCmdText.value = 'curl -fsSL https://boltstore.dev/install.sh | sh' }, 2000)
+}
 
 const activeTab = ref('js')
 const tabs = [
