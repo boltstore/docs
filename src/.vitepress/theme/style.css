@@ -574,6 +574,9 @@ html {
 
 /* Mobile overrides for doc pages */
 @media (max-width: 767px) {
+  .VPNavBarHamburger {
+    display: none !important;
+  }
   .VPDoc.has-aside .content-container {
     padding-left: 1rem !important;
     padding-right: 1rem !important;

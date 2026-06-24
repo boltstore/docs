@@ -14,6 +14,7 @@
           <path d="m21 21-4.35-4.35" stroke-width="2" stroke-linecap="round" />
         </svg>
       </button>
+      <a href="/guide/overview" class="nav-docs-link">Docs</a>
     </template>
   </Layout>
 </template>
@@ -48,9 +49,29 @@ function triggerSearch() {
   color: var(--text-primary);
 }
 
+.nav-docs-link {
+  display: none;
+  align-items: center;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--accent-400);
+  text-decoration: none;
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  transition: border-color 0.15s;
+}
+
+.nav-docs-link:hover {
+  border-color: var(--accent-600);
+}
+
 @media (max-width: 767px) {
   .nav-search-trigger {
     display: none !important;
+  }
+  .nav-docs-link {
+    display: inline-flex;
   }
 }
 </style>
