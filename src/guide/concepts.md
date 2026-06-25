@@ -49,7 +49,7 @@ curl http://localhost:8080/api/databases/my-app/query \
 
 Boltstore has two types of credentials:
 
-- **Admin sessions** — for dashboard users (humans). Global scope, can administer the whole server. Sent as `Authorization: Bearer <session-token>`.
+- **Admin sessions** — for dashboard users (humans). Global scope, can administer the whole server. Sent as `Authorization: Bearer <session-token>`. Admin sessions also work for data CRUD operations (tables, records, queries), not just admin-only routes like setup and settings.
 - **API keys** — for services, scripts, and your application backend. Per-database scope, bound to one database. Format: `boltstore_` + 32 random alphanumeric characters. SHA-256 hashed at rest. Sent as `Authorization: Bearer <boltstore_...>`.
 
 ## Audit Logging

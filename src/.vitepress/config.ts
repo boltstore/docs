@@ -20,7 +20,7 @@ export default defineConfig({
       { text: "Docs", link: "/guide/overview" },
       { text: "API", link: "/api/overview" },
       { text: "SDK", link: "/sdk/overview" },
-      { text: "Github ", link: "https://github.com/boltstore/boltstore" },
+      { text: "GitHub", link: "https://github.com/boltstore/boltstore" },
     ],
 
     sidebar: {
@@ -37,6 +37,7 @@ export default defineConfig({
           text: "API Reference",
           items: [
             { text: "🔌 REST API", link: "/api/overview" },
+            { text: "🗄️ Databases API", link: "/api/databases" },
             { text: "📊 Analytics API", link: "/api/analytics" },
           ],
         },
@@ -60,6 +61,7 @@ export default defineConfig({
           text: "API Reference",
           items: [
             { text: "🔌 REST API", link: "/api/overview" },
+            { text: "🗄️ Databases API", link: "/api/databases" },
             { text: "📊 Analytics API", link: "/api/analytics" },
           ],
         },
@@ -83,6 +85,7 @@ export default defineConfig({
           text: "API Reference",
           items: [
             { text: "🔌 REST API", link: "/api/overview" },
+            { text: "🗄️ Databases API", link: "/api/databases" },
             { text: "📊 Analytics API", link: "/api/analytics" },
           ],
         },
@@ -105,7 +108,7 @@ export default defineConfig({
     },
 
     editLink: {
-      pattern: "https://github.com/boltstore/docs/edit/main/src/:path",
+      pattern: "https://github.com/boltstore/docs/edit/main/src/:path", // docs repo
       text: "Edit this page on GitHub",
     },
 

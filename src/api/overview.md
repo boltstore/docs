@@ -41,16 +41,49 @@ Authenticate an admin user and receive a session token. Login is throttled per-I
 -H <span class="code-string">'Content-Type: application/json'</span> \
 -d <span class="code-string">'{"email": "admin@example.com", "password": "..."}'</span>
 <span class="code-comment"># Response</span>
-{ <span class="code-string">"data"</span>: { <span class="code-string">"token"</span>: <span class="code-string">"&lt;session-token&gt;"</span> } }</pre>
+{ <span class="code-string">"data"</span>: { <span class="code-string">"token"</span>: <span class="code-string">"&lt;session-token&gt;"</span>, <span class="code-string">"admin"</span>: { <span class="code-string">"id"</span>: <span class="code-string">"adm_..."</span>, <span class="code-string">"email"</span>: <span class="code-string">"admin@example.com"</span> } } }</pre>
 
 ### Admin Status
 
 <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
-  <span class="method-badge method-post">POST</span>
+  <span class="method-badge method-get">GET</span>
   <code style="font-family: var(--font-mono); font-size: 0.8125rem; background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: 4px; padding: 0.125rem 0.5rem;">/api/admin/status</code>
 </div>
 
 Check whether any admins exist (used by the dashboard setup flow). Public, no auth required.
+
+### Admin Setup
+
+<div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+  <span class="method-badge method-post">POST</span>
+  <code style="font-family: var(--font-mono); font-size: 0.8125rem; background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: 4px; padding: 0.125rem 0.5rem;">/api/admin/setup</code>
+</div>
+
+Create the first admin account (no auth required) or additional admins (requires bootstrap key or existing session). Throttled per-IP.
+
+```bash
+curl -X POST http://localhost:8080/api/admin/setup \
+  -H "Content-Type: application/json" \
+  -d '{"email": "admin@example.com", "password": "..."}'
+```
+
+### Get Current Admin
+
+<div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+  <span class="method-badge method-get">GET</span>
+  <code style="font-family: var(--font-mono); font-size: 0.8125rem; background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: 4px; padding: 0.125rem 0.5rem;">/api/admin/me</code>
+</div>
+
+Returns the current admin's `{ id, email }` from the session token. Requires admin session.
+
+### Admin Logout
+
+<div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+  <span class="method-badge method-post">POST</span>
+  <code style="font-family: var(--font-mono); font-size: 0.8125rem; background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: 4px; padding: 0.125rem 0.5rem;">/api/admin/logout</code>
+</div>
+
+Invalidates the session token. Requires admin session.
 
 ## Databases
 
@@ -76,6 +109,45 @@ Returns a list of all databases. Requires admin session.
 }
 ]
 }</pre>
+
+### Get Database
+
+<div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+  <span class="method-badge method-get">GET</span>
+  <code style="font-family: var(--font-mono); font-size: 0.8125rem; background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: 4px; padding: 0.125rem 0.5rem;">/api/databases/:name</code>
+</div>
+
+Returns a single database with its tables. Requires admin session.
+
+### Rename Database
+
+<div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+  <span class="method-badge method-patch">PATCH</span>
+  <code style="font-family: var(--font-mono); font-size: 0.8125rem; background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: 4px; padding: 0.125rem 0.5rem;">/api/databases/:name</code>
+</div>
+
+Renames a database and its underlying file. Requires admin session.
+
+```bash
+curl -X PATCH http://localhost:8080/api/databases/my-app \
+  -H "Authorization: Bearer <session-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "my-app-v2"}'
+```
+
+### Database Config
+
+<div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+  <span class="method-badge method-get">GET</span>
+  <code style="font-family: var(--font-mono); font-size: 0.8125rem; background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: 4px; padding: 0.125rem 0.5rem;">/api/databases/:name/config</code>
+</div>
+
+<div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+  <span class="method-badge method-patch">PATCH</span>
+  <code style="font-family: var(--font-mono); font-size: 0.8125rem; background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: 4px; padding: 0.125rem 0.5rem;">/api/databases/:name/config</code>
+</div>
+
+Get or update per-database configuration (CORS origins, readonly flag, group). Requires admin session.
 
 ### Create Database
 
@@ -159,6 +231,44 @@ Accessible with an API key or admin session.
 -H <span class="code-string">'Content-Type: application/json'</span> \
 -d <span class="code-string">'{"name": "users", "columns": [{"name": "id", "type": "integer", "primary_key": true, "auto_increment": true}, {"name": "name", "type": "text", "nullable": false}]}'</span></pre>
 
+### Get Table Schema
+
+<div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+  <span class="method-badge method-get">GET</span>
+  <code style="font-family: var(--font-mono); font-size: 0.8125rem; background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: 4px; padding: 0.125rem 0.5rem;">/api/databases/:db/tables/:table</code>
+</div>
+
+Returns column metadata (name, type, notnull, pk, default) from `PRAGMA table_info`. Accessible with an API key or admin session.
+
+### Alter Table
+
+<div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+  <span class="method-badge method-patch">PATCH</span>
+  <code style="font-family: var(--font-mono); font-size: 0.8125rem; background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: 4px; padding: 0.125rem 0.5rem;">/api/databases/:db/tables/:table</code>
+</div>
+
+Rename the table, add/drop columns, or rename a column:
+
+```json
+{
+  "name": "new-name",
+  "add_columns": [{ "name": "body", "type": "text" }],
+  "drop_columns": ["old_col"],
+  "rename_column": { "from": "old_name", "to": "new_name" }
+}
+```
+
+Requires a write-capable API key or admin session.
+
+### Drop Table
+
+<div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+  <span class="method-badge method-delete">DELETE</span>
+  <code style="font-family: var(--font-mono); font-size: 0.8125rem; background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: 4px; padding: 0.125rem 0.5rem;">/api/databases/:db/tables/:table</code>
+</div>
+
+Permanently drops a table and all its data. Requires write access.
+
 ## Records
 
 ### List / Create Records
@@ -173,7 +283,31 @@ Accessible with an API key or admin session.
   <code style="font-family: var(--font-mono); font-size: 0.8125rem; background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: 4px; padding: 0.125rem 0.5rem;">/api/databases/:db/tables/:table/records</code>
 </div>
 
-List supports `filter`, `sort`, `limit` (max 1000, default 50), `offset`, and `fields` query params. Accessible with an API key or admin session.
+List supports `filter`, `sort`, `limit` (max 1000, default 50), `offset`, `fields`, and `search` query params. Accessible with an API key or admin session.
+
+### Filter Syntax
+
+The `filter` parameter is a JSON object. Simple equality: `{"status": "active"}`. For comparison operators, append `__op` to the field name:
+
+| Operator | Example | Description |
+|----------|---------|-------------|
+| `__eq` | `{"views__eq": 100}` | Equal (same as bare value) |
+| `__ne` | `{"status__ne": "archived"}` | Not equal |
+| `__gt` | `{"views__gt": 100}` | Greater than |
+| `__gte` | `{"views__gte": 100}` | Greater than or equal |
+| `__lt` | `{"views__lt": 100}` | Less than |
+| `__lte` | `{"views__lte": 100}` | Less than or equal |
+| `__in` | `{"status__in": ["active","pending"]}` | Value in array |
+| `__like` | `{"title__like": "%hello%"}` | SQL LIKE match (use `%` for wildcards) |
+| `__glob` | `{"title__glob": "*hello*"}` | SQL GLOB match |
+
+### Other Params
+
+- `sort` — Field name prefixed with `-` for descending (e.g., `-created_at`).
+- `fields` — Comma-separated list of columns to return (e.g., `id,title`).
+- `search` — Full-text search across all text columns (simple LIKE match on the search term).
+- `limit` — Max records per page (default 50, max 1000).
+- `offset` — Pagination offset.
 
 <pre class="code-block"><span class="code-comment"># List with filter and pagination</span>
 curl <span class="code-string">'http://localhost:8080/api/databases/my-app/tables/users/records?filter={"active":true}&sort=-created_at&limit=10'</span> \
@@ -238,6 +372,8 @@ Execute parameterised SQL. Accepts `{ sql: string, params?: unknown[] }`.
 
 Exports the database to a `.db` file via `VACUUM INTO`. Requires admin session.
 
+**Response:** Binary `application/octet-stream` stream of the `.db` file (NOT JSON). Save the response body directly to a `.db` file.
+
 ### Import Database
 
 <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
@@ -246,6 +382,43 @@ Exports the database to a `.db` file via `VACUUM INTO`. Requires admin session.
 </div>
 
 Imports a `.db` file and registers a new database (with integrity check). Requires admin session.
+
+## Activity Log
+
+<div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+  <span class="method-badge method-get">GET</span>
+  <code style="font-family: var(--font-mono); font-size: 0.8125rem; background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: 4px; padding: 0.125rem 0.5rem;">/api/activity?limit=20&offset=0</code>
+</div>
+
+Paginated audit log of admin actions (login, database create/rename/delete, etc.). Requires admin session.
+
+## Settings
+
+<div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+  <span class="method-badge method-get">GET</span>
+  <code style="font-family: var(--font-mono); font-size: 0.8125rem; background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: 4px; padding: 0.125rem 0.5rem;">/api/settings</code>
+</div>
+
+<div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+  <span class="method-badge method-patch">PATCH</span>
+  <code style="font-family: var(--font-mono); font-size: 0.8125rem; background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: 4px; padding: 0.125rem 0.5rem;">/api/settings</code>
+</div>
+
+Get or update global settings (timezone, server URL). Requires admin session.
+
+## Health
+
+<div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+  <span class="method-badge method-get">GET</span>
+  <code style="font-family: var(--font-mono); font-size: 0.8125rem; background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: 4px; padding: 0.125rem 0.5rem;">/api/health</code>
+</div>
+
+Public health check. Returns server status, version, and database count. No auth required.
+
+```bash
+curl http://localhost:8080/api/health
+# { "status": "ok", "version": "0.8.0", "databases": 3 }
+```
 
 ## Response Codes
 
@@ -257,4 +430,7 @@ Imports a `.db` file and registers a new database (with integrity check). Requir
 | <span class="badge badge-yellow">401 Unauthorized</span> | Missing or invalid credentials |
 | <span class="badge badge-yellow">403 Forbidden</span> | Action requires admin privileges |
 | <span class="badge badge-yellow">404 Not Found</span> | Resource not found |
+| <span class="badge badge-yellow">409 Conflict</span> | Resource already exists (e.g., duplicate database name) |
+| <span class="badge badge-red">413 Payload Too Large</span> | Request body exceeds `maxBodySize` limit |
+| <span class="badge badge-red">429 Rate Limited</span> | Too many requests — retry after the indicated delay |
 | <span class="badge badge-red">500 Internal Error</span> | Server error |

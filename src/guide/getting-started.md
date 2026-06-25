@@ -75,9 +75,7 @@ Start the Boltstore server with a single command. If no config file exists, one 
 
 Running from source:
 
-<pre class="code-block">bun run boltstore serve
-<span class="code-comment"># Or without a command argument — defaults to serve on port 8080</span>
-bun run boltstore</pre>
+<pre class="code-block">bun run boltstore serve</pre>
 
 ## Create the First Admin Account
 
@@ -156,6 +154,7 @@ key: <span class="code-string">'boltstore_...'</span>,
 <span class="code-keyword">const</span> users = client.table&lt;{ id: number; name: string; email: string }&gt;(<span class="code-string">'users'</span>);
 <span class="code-keyword">const</span> created = <span class="code-keyword">await</span> users.create({ name: <span class="code-string">'Alice'</span>, email: <span class="code-string">'alice@example.com'</span> });
 <span class="code-keyword">const</span> list = <span class="code-keyword">await</span> users.query().where(<span class="code-string">'name'</span>, <span class="code-string">'like'</span>, <span class="code-string">'A%'</span>).limit(<span class="code-number">10</span>).get();
-console.log(list);</pre>
+console.log(list);
+<span class="code-comment">// See Filter Syntax in the API docs for all supported operators</span></pre>
 
 Check out the [SDK Guide](/sdk/overview) for the full API reference.

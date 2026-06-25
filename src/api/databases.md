@@ -1,3 +1,7 @@
+---
+title: Databases API
+---
+
 # Databases API
 
 Database management endpoints. All require admin authentication.
@@ -24,24 +28,23 @@ curl http://localhost:8080/api/databases \
       "id": "db_abc123",
       "name": "myapp",
       "path": "./data/myapp.db",
-      "created_at": "2026-06-20T10:00:00.000Z"
+      "createdAt": "2026-06-20T10:00:00.000Z"
     }
-  ],
-  "meta": { "total": 1 }
+  ]
 }
 ```
 
 ## Create Database
 
-<span class="method-badge method-post">GET</span> <code class="endpoint-path">/api/databases</code>
+<span class="method-badge method-post">POST</span> <code class="endpoint-path">/api/databases</code>
 
-Create a new SQLite database.
+Create a new SQLite database. The optional `group` field lets you organize databases into groups for filtering in the admin dashboard.
 
 ```bash
 curl -X POST http://localhost:8080/api/databases \
   -H "Authorization: Bearer <session-token>" \
   -H "Content-Type: application/json" \
-  -d '{"name": "myapp"}'
+  -d '{"name": "myapp", "group": "production"}'
 ```
 
 ```json
@@ -49,8 +52,9 @@ curl -X POST http://localhost:8080/api/databases \
   "data": {
     "id": "db_def456",
     "name": "myapp",
+    "group": "production",
     "path": "./data/myapp.db",
-    "created_at": "2026-06-21T12:00:00.000Z"
+    "createdAt": "2026-06-21T12:00:00.000Z"
   }
 }
 ```
@@ -85,13 +89,11 @@ Get per-database configuration (CORS origins, read-only flag, group).
 
 <span class="method-badge method-patch">PATCH</span> <code class="endpoint-path">/api/databases/:name/config</code>
 
-Update per-database configuration:
+Update per-database configuration. Only `cors_origins` and `readonly` keys are allowed.
 
 ```json
 {
-  "cors_origins": ["https://myapp.com"],
-  "read_only": false,
-  "group": "production"
+  "readonly": true
 }
 ```
 

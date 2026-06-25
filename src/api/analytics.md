@@ -38,7 +38,7 @@ Inserted every 5 minutes for every database.
 |---|---|---|
 | `id` | INTEGER | Auto-increment primary key |
 | `database` | TEXT | Database name |
-| `size_bytes` | INTEGER | Database file size (page_count × page_size) |
+| `size_bytes` | INTEGER | Database file size in bytes, recorded periodically by the analytics snapshot timer |
 | `table_count` | INTEGER | Number of user tables (excluding internal `_*` tables) |
 | `timestamp` | TEXT | ISO-8601 timestamp |
 
@@ -70,6 +70,8 @@ Aggregated stats across all databases.
 <span class="code-string">"writes"</span>: <span class="code-number">2341</span>,
 <span class="code-string">"avgLatencyMs"</span>: <span class="code-number">2.3</span>,
 <span class="code-string">"errorCount"</span>: <span class="code-number">12</span>,
+<span class="code-string">"rows_read"</span>: <span class="code-number">48293</span>,
+<span class="code-string">"rows_written"</span>: <span class="code-number">3510</span>,
 <span class="code-string">"totalStorageBytes"</span>: <span class="code-number">52428800</span>
 }
 }</pre>
@@ -81,6 +83,8 @@ Aggregated stats across all databases.
 | `writes` | Count of INSERT/UPDATE/DELETE operations |
 | `avgLatencyMs` | Average query latency across all databases |
 | `errorCount` | Number of failed queries |
+| `rows_read` | Sum of `row_count` for SELECT operations (rows returned) |
+| `rows_written` | Sum of `row_count` for INSERT/UPDATE/DELETE operations (rows affected) |
 | `totalStorageBytes` | Current total storage across all databases |
 
 ### Per-Database Analytics
@@ -97,14 +101,13 @@ Per-database stats, plus the top 10 tables by call count.
 <span class="code-string">"database"</span>: <span class="code-string">"my-app"</span>,
 <span class="code-string">"queries"</span>: <span class="code-number">8234</span>,
 <span class="code-string">"writes"</span>: <span class="code-number">1203</span>,
-<span class="code-string">"rowsRead"</span>: <span class="code-number">48293</span>,
-<span class="code-string">"rowsWritten"</span>: <span class="code-number">3510</span>,
+<span class="code-string">"rows_read"</span>: <span class="code-number">48293</span>,
 <span class="code-string">"avgLatencyMs"</span>: <span class="code-number">1.8</span>,
 <span class="code-string">"errorCount"</span>: <span class="code-number">5</span>,
 <span class="code-string">"storageBytes"</span>: <span class="code-number">16777216</span>,
 <span class="code-string">"tableCount"</span>: <span class="code-number">4</span>,
 <span class="code-string">"topTables"</span>: [
-{ <span class="code-string">"table_name"</span>: <span class="code-string">"users"</span>, <span class="code-string">"calls"</span>: <span class="code-number">4210</span>, <span class="code-string">"avg_ms"</span>: <span class="code-number">0.5</span>, <span class="code-string">"writes"</span>: <span class="code-number">202</span>, <span class="code-string">"total_rows"</span>: <span class="code-number">14212</span> }
+{ <span class="code-string">"sql_text"</span>: <span class="code-string">"SELECT * FROM \"users\" WHERE active = ?"</span>, <span class="code-string">"calls"</span>: <span class="code-number">4210</span>, <span class="code-string">"avg_ms"</span>: <span class="code-number">0.5</span>, <span class="code-string">"writes"</span>: <span class="code-number">202</span>, <span class="code-string">"total_rows"</span>: <span class="code-number">14212</span> }
 ]
 }
 }</pre>
@@ -113,9 +116,8 @@ Per-database stats, plus the top 10 tables by call count.
 |---|---|
 | `queries` | Total query count (SELECT + writes + errors) in the time window |
 | `writes` | Count of INSERT/UPDATE/DELETE operations |
-| `rowsRead` | Sum of `row_count` for SELECT operations (actual rows returned) |
-| `rowsWritten` | Sum of `row_count` for INSERT/UPDATE/DELETE operations (actual rows affected) |
-| `topTables` | Top 10 tables by call count. `total_rows` is the sum of `row_count` across all operations on that table |
+| `rows_read` | Sum of `row_count` across all operations (rows returned + rows affected) |
+| `topTables` | Top 10 query patterns by call count. `sql_text` is the SQL text (or operation name for CRUD). `total_rows` is the sum of `row_count` across all matching operations |
 
 ### Query Log
 
@@ -140,14 +142,13 @@ Response includes `meta.total` for the total matching entry count in the time wi
   <code style="font-family: var(--font-mono); font-size: 0.8125rem; background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: 4px; padding: 0.125rem 0.5rem;">/api/analytics/top-queries?range=24h</code>
 </div>
 
-Top 20 query patterns across all databases, grouped by `(database, table_name, operation)`.
+Top 1 query pattern per database (most-called query), sorted by call count descending. Grouped by `COALESCE(sql_text, operation)` to capture raw SQL and CRUD operations together.
 
 <pre class="code-block">{
 <span class="code-string">"data"</span>: [
 {
 <span class="code-string">"database"</span>: <span class="code-string">"my-app"</span>,
-<span class="code-string">"table_name"</span>: <span class="code-string">"users"</span>,
-<span class="code-string">"operation"</span>: <span class="code-string">"select"</span>,
+<span class="code-string">"sql_text"</span>: <span class="code-string">"SELECT * FROM \"users\" WHERE active = ?"</span>,
 <span class="code-string">"calls"</span>: <span class="code-number">4008</span>,
 <span class="code-string">"avg_ms"</span>: <span class="code-number">0.5</span>,
 <span class="code-string">"total_rows"</span>: <span class="code-number">14000</span>
@@ -155,7 +156,7 @@ Top 20 query patterns across all databases, grouped by `(database, table_name, o
 ]
 }</pre>
 
-Raw SQL queries (no table context) appear with `table_name: null` and are displayed as `raw` in the dashboard.
+Raw SQL queries (no table context) appear as their SQL text; record CRUD operations show their constructed SQL template.
 
 ### Errors
 
@@ -180,7 +181,11 @@ Time-series data suitable for chart rendering. Returns evenly-spaced slots (hour
 <span class="code-string">"slots"</span>: [<span class="code-string">"00"</span>, <span class="code-string">"01"</span>, <span class="code-string">"02"</span>, <span class="code-string">"03"</span>],
 <span class="code-string">"counts"</span>: [<span class="code-number">120</span>, <span class="code-number">85</span>, <span class="code-number">42</span>, <span class="code-number">18</span>],
 <span class="code-string">"errors"</span>: [<span class="code-number">0</span>, <span class="code-number">1</span>, <span class="code-number">0</span>, <span class="code-number">0</span>],
-<span class="code-string">"max"</span>: <span class="code-number">120</span>
+<span class="code-string">"rows_read"</span>: [<span class="code-number">480</span>, <span class="code-number">340</span>, <span class="code-number">168</span>, <span class="code-number">72</span>],
+<span class="code-string">"rows_written"</span>: [<span class="code-number">24</span>, <span class="code-number">10</span>, <span class="code-number">6</span>, <span class="code-number">2</span>],
+<span class="code-string">"max"</span>: <span class="code-number">120</span>,
+<span class="code-string">"max_read"</span>: <span class="code-number">480</span>,
+<span class="code-string">"max_written"</span>: <span class="code-number">24</span>
 }
 }</pre>
 
@@ -189,7 +194,11 @@ Time-series data suitable for chart rendering. Returns evenly-spaced slots (hour
 | `slots` | Time slot labels (hour `"00"`–`"23"`, date `"2026-01-01"`, or ISO week `"2026-01"`) |
 | `counts` | Query count per slot, in the same order |
 | `errors` | Error count per slot |
-| `max` | Maximum value across all slots (for chart Y-axis scaling) |
+| `rows_read` | Total rows read (SELECT) per slot |
+| `rows_written` | Total rows written (INSERT/UPDATE/DELETE) per slot |
+| `max` | Maximum query count across all slots (for chart Y-axis scaling) |
+| `max_read` | Maximum rows_read across all slots |
+| `max_written` | Maximum rows_written across all slots |
 
 ### Storage History
 

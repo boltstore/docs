@@ -63,7 +63,7 @@ add_columns: [{ name: <span class="code-string">'body'</span>, type: <span class
 <span class="code-keyword">await</span> posts.delete(created.id);
 <span class="code-comment">// List with filter, sort, pagination</span>
 <span class="code-keyword">const</span> result = <span class="code-keyword">await</span> posts.list({
-filter: { title: <span class="code-string">'Hello%'</span> },
+filter: { title: <span class="code-string">'Hello'</span> }, <span class="code-comment">// exact match; use filter: { title__like: '%Hello%' } for pattern matching</span>
 sort: <span class="code-string">'-id'</span>,
 limit: <span class="code-number">10</span>,
 offset: <span class="code-number">0</span>,
@@ -78,6 +78,10 @@ offset: <span class="code-number">0</span>,
 .orderBy(<span class="code-string">'id'</span>, <span class="code-string">'desc'</span>)
 .limit(<span class="code-number">10</span>)
 .get();
+<span class="code-comment">// Select specific columns</span>
+<span class="code-keyword">const</span> titles = <span class="code-keyword">await</span> posts.query().select(<span class="code-string">'id'</span>, <span class="code-string">'title'</span>).get();
+<span class="code-comment">// Count rows (without fetching data)</span>
+<span class="code-keyword">const</span> total = <span class="code-keyword">await</span> posts.query().where(<span class="code-string">'views'</span>, <span class="code-string">'gt'</span>, <span class="code-number">0</span>).count();
 <span class="code-comment">// Get first match</span>
 <span class="code-keyword">const</span> first = <span class="code-keyword">await</span> posts.query().where(<span class="code-string">'title'</span>, <span class="code-string">'eq'</span>, <span class="code-string">'Hello'</span>).first();
 <span class="code-comment">// Paginate</span>
@@ -95,7 +99,7 @@ Supported operators: `eq`, `ne`, `gt`, `gte`, `lt`, `lte`, `in`, `like`, `glob`.
 
 ## Admin Operations
 
-These methods require an admin session token or admin API key:
+These methods require an admin session token:
 
 <pre class="code-block"><span class="code-comment">// Database info / delete / export</span>
 <span class="code-keyword">const</span> info = <span class="code-keyword">await</span> client.info();
@@ -123,5 +127,4 @@ If you only have a per-database API key, use `tables`, `table()`, `list`, and `s
 
 ## Known Issues
 
-- **`PaginatedResult.total` is currently broken.** `list()` and `paginate()` return `total` as the current page's row count, not the total matching rows. Do not rely on `total` for pagination page-count math until fixed.
-- **`QueryBuilder.where` `op` is not validated client-side.** An unsupported `op` is silently dropped by the server. Stick to the supported operators listed above.
+- **`PaginatedResult.total` may return current-page count.** In rare cases where the server doesn't return a valid `meta.total`, the SDK falls back to the current page's row count. Usually the server returns the correct total; this only affects edge cases.
