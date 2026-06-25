@@ -37,6 +37,7 @@ export default defineConfig({
           text: "API Reference",
           items: [
             { text: "🔌 REST API", link: "/api/overview" },
+            { text: "📊 Analytics API", link: "/api/analytics" },
           ],
         },
         {
@@ -59,6 +60,7 @@ export default defineConfig({
           text: "API Reference",
           items: [
             { text: "🔌 REST API", link: "/api/overview" },
+            { text: "📊 Analytics API", link: "/api/analytics" },
           ],
         },
         {
@@ -81,6 +83,7 @@ export default defineConfig({
           text: "API Reference",
           items: [
             { text: "🔌 REST API", link: "/api/overview" },
+            { text: "📊 Analytics API", link: "/api/analytics" },
           ],
         },
         {
