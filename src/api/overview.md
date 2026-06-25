@@ -326,7 +326,7 @@ curl -X POST http://localhost:8080/api/databases/my-app/tables/users/records \
 </div>
 
 <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
-  <span class="method-badge method-post">PATCH</span>
+  <span class="method-badge method-patch">PATCH</span>
   <code style="font-family: var(--font-mono); font-size: 0.8125rem; background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: 4px; padding: 0.125rem 0.5rem;">/api/databases/:db/tables/:table/records/:id</code>
 </div>
 
@@ -417,7 +417,7 @@ Public health check. Returns server status, version, and database count. No auth
 
 ```bash
 curl http://localhost:8080/api/health
-# { "status": "ok", "version": "0.8.0", "databases": 3 }
+# { "status": "ok", "version": "1.0.0", "databases": 3 }
 ```
 
 ## Response Codes
