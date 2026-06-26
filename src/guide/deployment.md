@@ -498,3 +498,64 @@ docker compose up -d --build
 ```
 
 Always check the [changelog](https://github.com/boltstore/boltstore/releases) for breaking changes between versions.
+
+---
+
+## Troubleshooting
+
+**"attempt to write a readonly database" or admin setup returns "INTERNAL_ERROR".** The data directory is owned by the wrong user. After reinstalling or copying files, fix permissions:
+
+```bash
+sudo chown -R boltstore:boltstore /var/lib/boltstore
+sudo systemctl restart boltstore
+```
+
+**Activity logs show `::ffff:127.0.0.1` instead of real client IPs with Cloudflare.** Two steps:
+
+1. Add Cloudflare's IP ranges to `trustedProxies` in `boltstore.yaml` so Boltstore trusts the `cf-connecting-ip` header:
+
+```yaml
+trustedProxies:
+  - "127.0.0.1"
+  - "::1"
+  - "173.245.48.0/20"
+  - "103.21.244.0/22"
+  - "103.22.200.0/22"
+  - "103.31.4.0/22"
+  - "141.101.64.0/18"
+  - "108.162.192.0/18"
+  - "190.93.240.0/20"
+  - "188.114.96.0/20"
+  - "197.234.240.0/22"
+  - "198.41.128.0/17"
+  - "162.158.0.0/15"
+  - "104.16.0.0/13"
+  - "104.24.0.0/14"
+  - "172.64.0.0/13"
+  - "131.0.72.0/22"
+  - "2400:cb00::/32"
+  - "2606:4700::/32"
+  - "2803:f800::/32"
+  - "2405:b500::/32"
+  - "2405:8100::/32"
+  - "2a06:98c0::/29"
+  - "2c0f:f248::/32"
+```
+
+2. Boltstore automatically strips the `::ffff:` prefix from IPv4-mapped addresses, so `::ffff:127.0.0.1` becomes `127.0.0.1` and matches your trusted list.
+
+**Dashboard returns "not built" after reinstall.** The admin dashboard ships as `admin-dist.tar.gz` alongside the binary. The install script extracts it to `/usr/local/bin/admin/dist/`. If missing, reinstall:
+
+```bash
+curl -fsSL https://boltstore.dev/install.sh | sh
+```
+
+**Fonts don't load on the dashboard.** The CSP only allows fonts from `fonts.bunny.net`. If you modified the admin template to use Google Fonts, revert to bunny.net or update the CSP in the server source.
+
+**"Failed at step USER spawning" in systemd.** The `boltstore` system user hasn't been created:
+
+```bash
+sudo useradd --system --no-create-home --shell /usr/sbin/nologin boltstore
+sudo chown -R boltstore:boltstore /var/lib/boltstore
+sudo systemctl restart boltstore
+```
