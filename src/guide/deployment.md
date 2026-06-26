@@ -56,7 +56,15 @@ sudo mv boltstore /usr/local/bin/
 | Data directory | `./data` (relative to working directory) — configure with `DATABASE_PATH` |
 | Config file | `./boltstore.yaml` or `./boltstore.json` |
 
-**Set a fixed data directory for production:**
+**Set a fixed data directory and system user for production:**
+
+```bash
+sudo useradd --system --no-create-home --shell /usr/sbin/nologin boltstore
+sudo mkdir -p /var/lib/boltstore
+sudo chown boltstore:boltstore /var/lib/boltstore
+```
+
+For testing without systemd, skip the user and just:
 
 ```bash
 sudo mkdir -p /var/lib/boltstore
