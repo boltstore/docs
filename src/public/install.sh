@@ -141,6 +141,26 @@ else
   mv "$TMP_FILE" "${INSTALL_DIR}/boltstore"
 fi
 
+# Download and extract admin dashboard
+ADMIN_URL="https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/releases/download/${VERSION}/admin-dist.tar.gz"
+if [ "$VERSION" = "latest" ]; then
+  ADMIN_URL="https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/releases/latest/download/admin-dist.tar.gz"
+fi
+echo "Downloading admin dashboard..."
+if curl -fsSL "$ADMIN_URL" -o /tmp/boltstore-admin.tar.gz 2>/dev/null; then
+  echo "Extracting admin dashboard to ${INSTALL_DIR}/admin/dist..."
+  if [ -n "$SUDO" ]; then
+    $SUDO mkdir -p "${INSTALL_DIR}/admin"
+    $SUDO tar xzf /tmp/boltstore-admin.tar.gz -C "${INSTALL_DIR}/admin"
+  else
+    mkdir -p "${INSTALL_DIR}/admin"
+    tar xzf /tmp/boltstore-admin.tar.gz -C "${INSTALL_DIR}/admin"
+  fi
+  rm -f /tmp/boltstore-admin.tar.gz
+else
+  echo "Admin dashboard not available for this release."
+fi
+
 # Verify
 echo ""
 INSTALLED_PATH="${INSTALL_DIR}/boltstore"
