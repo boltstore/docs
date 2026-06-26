@@ -34,6 +34,12 @@ export default defineConfig({
           ],
         },
         {
+          text: "Operations",
+          items: [
+            { text: "🚀 Production Deploy", link: "/guide/deployment" },
+          ],
+        },
+        {
           text: "API Reference",
           items: [
             { text: "🔌 REST API", link: "/api/overview" },
@@ -58,6 +64,12 @@ export default defineConfig({
           ],
         },
         {
+          text: "Operations",
+          items: [
+            { text: "🚀 Production Deploy", link: "/guide/deployment" },
+          ],
+        },
+        {
           text: "API Reference",
           items: [
             { text: "🔌 REST API", link: "/api/overview" },
@@ -79,6 +91,12 @@ export default defineConfig({
             { text: "📖 Overview", link: "/guide/overview" },
             { text: "🚀 Get Started", link: "/guide/getting-started" },
             { text: "💡 Concepts", link: "/guide/concepts" },
+          ],
+        },
+        {
+          text: "Operations",
+          items: [
+            { text: "🚀 Production Deploy", link: "/guide/deployment" },
           ],
         },
         {

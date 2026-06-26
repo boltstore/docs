@@ -147,8 +147,6 @@ INSTALLED_PATH="${INSTALL_DIR}/boltstore"
 if command -v boltstore >/dev/null 2>&1; then
   echo "Boltstore installed successfully!"
   echo ""
-  echo "  $(boltstore --version 2>/dev/null || echo "boltstore")"
-  echo ""
   echo "Run 'boltstore serve' to start the server."
   echo "Dashboard will be available at http://localhost:8080/dashboard"
 else
