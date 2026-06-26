@@ -332,10 +332,22 @@ Boltstore has built-in rate limiting for **auth endpoints only**:
 
 | Endpoint | Limit |
 |----------|-------|
-| Login / Setup | 5 attempts per 15 minutes per IP |
-| API key verification | 20 attempts per minute per IP per database |
+| Login / Setup | 5 attempts per 15 minutes per IP (always on) |
+| API key verification | Disabled by default — configurable via env var |
 
 **Data endpoints (records, tables, query) are intentionally unthrottled.** Boltstore is a server-to-server DBaaS — API keys are issued to developers, not end users. Throttling data operations would harm legitimate backend workloads.
+
+### API key rate limiting
+
+API keys are 48-char random strings — brute-forcing is mathematically infeasible. Rate limiting API key verification is **disabled by default**. If you want to enable it (e.g., to limit misconfigured clients from flooding your server), set the env var:
+
+```bash
+BOLTSTORE_API_KEY_RATE_LIMIT=100
+```
+
+This limits failed API key lookups to 100 per minute per IP per database. Set to `0` or leave unset to disable.
+
+### Reverse proxy rate limiting (optional)
 
 If you want rate limiting on data endpoints, add it at the reverse proxy level:
 
