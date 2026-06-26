@@ -503,14 +503,20 @@ Always check the [changelog](https://github.com/boltstore/boltstore/releases) fo
 
 ## Troubleshooting
 
-**"attempt to write a readonly database" or admin setup returns "INTERNAL_ERROR".** The data directory is owned by the wrong user. After reinstalling or copying files, fix permissions:
+### Permission errors ("attempt to write a readonly database" / "INTERNAL_ERROR")
+
+The data directory is owned by the wrong user. After reinstalling or copying files, fix permissions:
 
 ```bash
 sudo chown -R boltstore:boltstore /var/lib/boltstore
 sudo systemctl restart boltstore
 ```
 
-**Activity logs show `::ffff:127.0.0.1` instead of real client IPs with Cloudflare.** Two steps:
+---
+
+### `::ffff:127.0.0.1` in activity logs (Cloudflare users)
+
+Two steps to show real client IPs:
 
 1. Add Cloudflare's IP ranges to `trustedProxies` in `boltstore.yaml` so Boltstore trusts the `cf-connecting-ip` header:
 
@@ -544,15 +550,27 @@ trustedProxies:
 
 2. Boltstore automatically strips the `::ffff:` prefix from IPv4-mapped addresses, so `::ffff:127.0.0.1` becomes `127.0.0.1` and matches your trusted list.
 
-**Dashboard returns "not built" after reinstall.** The admin dashboard ships as `admin-dist.tar.gz` alongside the binary. The install script extracts it to `/usr/local/bin/admin/dist/`. If missing, reinstall:
+---
+
+### Dashboard returns "not built" after reinstall
+
+The admin dashboard ships as `admin-dist.tar.gz` alongside the binary. The install script extracts it to `/usr/local/bin/admin/dist/`. If missing, reinstall:
 
 ```bash
 curl -fsSL https://boltstore.dev/install.sh | sh
 ```
 
-**Fonts don't load on the dashboard.** The CSP only allows fonts from `fonts.bunny.net`. If you modified the admin template to use Google Fonts, revert to bunny.net or update the CSP in the server source.
+---
 
-**"Failed at step USER spawning" in systemd.** The `boltstore` system user hasn't been created:
+### Fonts don't load on the dashboard
+
+The CSP only allows fonts from `fonts.bunny.net`. If you modified the admin template to use Google Fonts, revert to bunny.net or update the CSP in the server source.
+
+---
+
+### systemd fails with "Failed at step USER spawning"
+
+The `boltstore` system user hasn't been created:
 
 ```bash
 sudo useradd --system --no-create-home --shell /usr/sbin/nologin boltstore
