@@ -37,6 +37,7 @@ export default defineConfig({
           text: "Operations",
           items: [
             { text: "🚀 Production Deploy", link: "/guide/deployment" },
+            { text: "📋 Changelog", link: "/guide/changelog" },
           ],
         },
         {
@@ -67,6 +68,7 @@ export default defineConfig({
           text: "Operations",
           items: [
             { text: "🚀 Production Deploy", link: "/guide/deployment" },
+            { text: "📋 Changelog", link: "/guide/changelog" },
           ],
         },
         {
@@ -97,6 +99,7 @@ export default defineConfig({
           text: "Operations",
           items: [
             { text: "🚀 Production Deploy", link: "/guide/deployment" },
+            { text: "📋 Changelog", link: "/guide/changelog" },
           ],
         },
         {

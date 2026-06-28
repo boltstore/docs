@@ -1,0 +1,46 @@
+---
+title: Changelog — Boltstore
+---
+
+# Changelog
+
+All notable changes to Boltstore are documented here.
+
+## v1.0.1 — 2026-06-28
+
+### Fixed
+
+- **Dashboard not found in Docker/npm (admin build missing)** — The Vue admin dashboard (`admin/dist/`) was not included in the Docker image or the npm package. Fixed by building the admin in the Dockerfile and adding `admin/dist` to `package.json` `files`.
+- **Analytics storage showing 0 B on fresh databases** — Storage was only computed by the 5-minute snapshot timer. Newly imported/created databases showed `0 B` until the timer fired. Added on-demand `ensureSnapshot()` that computes `PRAGMA page_count × page_size` at query time if no snapshot exists yet.
+- **Executable binary: missing admin dashboard** — The standalone binary (`bun build --compile`) bundles only the server code. The admin dashboard now ships as `admin-dist.tar.gz` alongside the binary, extracted by the install script to `dirname(process.execPath)/admin/dist/`.
+- **Analytics > Top Queries column widths** — Database column was taking too much space; query column was cramped. Pinned Database column to `120px` and numeric columns to `10%` each. Query text now truncates with ellipsis when it exceeds the cell width instead of wrapping.
+- **Analytics > Errors showing all entries** — The errors table displayed all 20 entries inline. Now shows only the top 5 with a "View All" button that opens a modal with the full list.
+- **Database detail tabs broken on small screens** — Tabs overflowed the viewport on narrow screens. Made the tab bar horizontally scrollable and hid the SQLite info badge on small screens (`<sm`).
+- **Dashboard overview refetching static data on range change** — Switching the time range (24h/7d/30d) re-fetched health, databases, and activity data unnecessarily. Split loading into static data (fetched once) and range-dependent data (refetched only on range change).
+- **Volume chart x-axis not anchored to current time** — The 24h chart always showed static hours 00–23 regardless of the current time. The rightmost slot now aligns to the next time boundary (next hour for 24h, next midnight for 7d, next Sunday for 30d) using the browser's detected timezone (`Intl.DateTimeFormat`). DST and timezone offset changes are handled correctly.
+- **Volume chart 30d only counting Sunday queries** — Weekly aggregation looked up only the start Sunday's daily bucket, missing queries from Monday–Saturday. Now iterates across all 7 days of each weekly slot and sums the daily counts.
+- **Analytics > Errors not showing entries older than 24h** — The errors endpoint defaulted to `range=24h` when no range was passed, and the frontend never sent one. Switching to 7d/30d on the analytics page now passes the active range to the errors endpoint.
+- **Database > Queries table truncating SQL** — The query column shared the same truncation CSS (ellipsis) as the Analytics overview, preventing users from reading full SQL on the database detail page. Split into two styles: `.top-queries-table` (overview, still truncates) and `.detail-queries-table` (database detail, wraps text).
+
+### Changed
+
+- **Docker: data persistence** — Switched from a Docker named volume (`boltstore-data`) to a bind mount (`./data:/app/data`) in `docker-compose.yml`. Data survives container/image deletion and is directly accessible on the host (macOS, Linux, Windows).
+- **`package.json` prepublish** — Now builds the admin dashboard before publishing.
+- **Volume chart: bar → line** — Small values (e.g., 10 next to 250) were nearly impossible to hover on a bar chart. Switched to a filled line chart with visible data points and `nearest` + `intersect: false` interaction so the tooltip triggers anywhere along the line.
+- **Compact number formatting** — Large numbers (queries, writes, rows, error counts) across the dashboard now display as `1.5K`, `1.2M` instead of raw `1,500`, `1,234,567`. Added `formatCompact()` utility used in metric cards, database lists, top queries, and activity totals.
+
+## v1.0.0 — 2026-06-25
+
+Initial release.
+
+### Features
+
+- HTTP REST API for SQLite databases (CRUD, DDL, raw SQL)
+- Multi-database isolation — each database gets its own SQLite file
+- Admin dashboard (Vue 3 SPA) at `/dashboard`
+- API key authentication (per-database) + admin sessions
+- Database import/export (`.db` files via `VACUUM INTO`)
+- Built-in analytics — query log and storage snapshots
+- Per-database config (CORS, read-only mode, group)
+- Audit logging for admin actions
+- Deployment via standalone binary, `npm install -g`, or Docker
