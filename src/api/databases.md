@@ -77,6 +77,14 @@ Renames the database and its underlying file. API keys are automatically updated
 
 ::: warning
 Analytics tables (`_query_log`, `_storage_snapshots`, `_daily_stats`, `_daily_queries`) and the activity log are updated to reflect the new name. Only entries created by this server with analytics enabled are affected — external records are not migrated.
+
+**Rename internals**:
+
+1. **New Pool Creation**: The server does not reuse the old `DatabasePool`; it creates a new one for the renamed file to avoid 500 errors during the transition
+2. **Atomic Update**: The `_databases` table is updated with the new name and file path
+3. **Cache Invalidation**: The analytics response cache is immediately invalidated, causing the dashboard to refresh with current data
+4. **Order of Operations**: The server updates analytics records *before* updating the metadata table to ensure routing stability
+5. **File Cleanup**: The old file is removed after the new pool is successfully created and verified
 :::
 
 ## Delete Database
@@ -128,6 +136,27 @@ Rotate an API key. Returns a new key. The old key is immediately invalidated.
 <span class="method-badge method-delete">DELETE</span> <code class="endpoint-path">/api/databases/:name/keys/:id</code>
 
 Revoke an API key.
+
+## Batch Schema
+
+<span class="method-badge method-get">GET</span> <code class="endpoint-path">/api/databases/:name/tables/schema</code>
+
+Returns the `CREATE TABLE` statements for all user tables in the database. Accepts an API key or admin session.
+
+```json
+{
+  "data": [
+    {
+      "name": "users",
+      "schema": "CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, email TEXT)"
+    },
+    {
+      "name": "posts",
+      "schema": "CREATE TABLE posts (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, author_id INTEGER)"
+    }
+  ]
+}
+```
 
 ## Export
 

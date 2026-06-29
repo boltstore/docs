@@ -27,6 +27,7 @@ Inserted for every query or record CRUD operation. Rows older than 30 days are p
 | `status` | TEXT | `ok` or `error` |
 | `error_msg` | TEXT | Error message if `status = 'error'` |
 | `timestamp` | TEXT | ISO-8601 timestamp |
+| `database_id` | TEXT | Stable UUID referencing the database (added in v1.0.2). Historical events still show the database name for backward compatibility. |
 
 **Note on `table_name`:** Raw SQL queries via `POST /api/databases/:db/query` always log `table_name = NULL` since a single SQL statement can reference multiple tables, perform joins, or run DDL/PRAGMA. Only record CRUD operations (`POST /api/databases/:db/tables/:table/records`, etc.) populate `table_name` from the URL parameter.
 
@@ -37,10 +38,41 @@ Inserted every 5 minutes for every database.
 | Column | Type | Description |
 |---|---|---|
 | `id` | INTEGER | Auto-increment primary key |
-| `database` | TEXT | Database name |
+| `database` | TEXT | Target database name |
 | `size_bytes` | INTEGER | Database file size in bytes, recorded periodically by the analytics snapshot timer |
 | `table_count` | INTEGER | Number of user tables (excluding internal `_*` tables) |
 | `timestamp` | TEXT | ISO-8601 timestamp |
+| `database_id` | TEXT | Stable UUID referencing the database (added in v1.0.2) |
+
+### `_daily_stats`
+
+Daily aggregated query counts used for fast dashboard loading.
+
+| Column | Type | Description |
+|---|---|---|
+| `date` | TEXT | Date string, `2026-06-30` |
+| `database_name` | TEXT | Target database name |
+| `database_id` | TEXT | Stable UUID referencing the database |
+| `operation` | TEXT | `select`, `insert`, `update`, `delete`, `raw_query` |
+| `count` | INTEGER | Query count for that operation on that day |
+| `rows_read` | INTEGER | Rows returned for SELECT operations |
+
+**Note on the composite unique constraint:** `UNIQUE (database_id, date, operation)` prevents race conditions with concurrent flush requests.
+
+### `_daily_queries`
+
+Daily aggregated query patterns used for analytics dashboards.
+
+| Column | Type | Description |
+|---|---|---|
+| `date` | TEXT | Date string, `2026-06-30` |
+| `database_name` | TEXT | Target database name |
+| `database_id` | TEXT | Stable UUID referencing the database |
+| `sql_text` | TEXT | SQL query text, or `NULL` for CRUD (e.g., `SELECT * FROM users WHERE active = ?`) |
+| `count` | INTEGER | Query count for that text pattern on that day |
+| `row_count` | INTEGER | Rows returned across all matching queries |
+
+**Note on the composite unique constraint:** `UNIQUE (database_id, date, sql_text)` prevents race conditions. For CRUD queries, the `sql_text` pattern is derived from the constructed template.
 
 ## Range Parameter
 
@@ -241,3 +273,69 @@ The analytics data powers the Boltstore Dashboard:
 - **Analytics** — full page with charts, per-database stats table, top queries across all databases, and error log
 - **Databases** — per-database rows read, rows written, and total queries for the last 24 hours
 - **Database Detail > Top Queries** — top tables by call count with row totals and latency
+
+## Server-Side Caching & Parallelization
+
+The admin dashboard loads five analytics endpoints in parallel:
+
+- **Overview** (`/api/analytics/overview`)
+- **Per-database overview** (`/api/analytics/:database/overview`)
+- **Volume chart** (`/api/analytics/volume`)
+- **Top queries** (`/api/analytics/top-queries`)
+- **Errors** (`/api/analytics/errors`)
+
+Instead of sequential `await` calls, all endpoints fire simultaneously via `Promise.allSettled()`, reducing load time by ~2-3x.
+
+Additionally, the overview, databases, and volume endpoints use a server-side cache with a 60-second TTL. Subsequent requests within that window return cached `Response` objects directly, reducing SQLite query load to near zero.
+
+## Daily Aggregation (Pre-computed Tables)
+
+To power fast dashboard loading, analytics maintains two daily aggregation tables that are updated during the existing 5-second flush cycle:
+
+### `_daily_stats`
+
+Daily query counts per operation type. Used by the Databases dashboard panel to show per-database totals.
+
+| Column | Description |
+|---|---|
+| `date` | Date string (`2026-06-30`) |
+| `database_name` | Target database name |
+| `database_id` | Stable UUID referencing the database (v3 migration) |
+| `operation` | `select`, `insert`, `update`, `delete`, or `raw_query` |
+| `count` | Query count for that operation on that day |
+| `rows_read` | Rows returned for SELECT operations |
+
+### `_daily_queries`
+
+Daily query pattern aggregates. Used by the Top Queries panel.
+
+| Column | Description |
+|---|---|
+| `date` | Date string (`2026-06-30`) |
+| `database_name` | Target database name |
+| `database_id` | Stable UUID referencing the database (v3 migration) |
+| `sql_text` | SQL query text, or `NULL` for CRUD (e.g., `SELECT * FROM users WHERE active = ?`) |
+| `count` | Query count for that text pattern on that day |
+| `row_count` | Total rows returned across all matching queries |
+
+These tables are upserted atomically with the query log flush (default every 5 seconds), staying within ~5 seconds of real-time and eliminating the need for expensive `GROUP BY` queries on the dashboard.
+
+## Snapshot Timer
+
+The storage snapshots are taken every 5 minutes via a scheduled timer:
+
+- For every database in `_databases`, the server executes `PRAGMA page_count × PRAGMA page_size` and counts user tables (`CREATE TABLE` excluding internal `_*` tables)
+- Data is written to `_storage_snapshots` with the database's `database_id` (v3 migration)
+- No rollback logic — if the write fails, the snapshot timer continues on the next iteration
+
+## Search
+
+The analytics endpoints (queries, top-queries, errors) accept optional `?search=` query parameters:
+
+- **Query Log:** Filters by exact `sql_text` match
+- **Top Queries:** Filters by `sql_text` prefix match
+- **Errors:** Filters by `error_msg` prefix match
+
+Case-insensitive prefix matching (SQLite's `LIKE :search`).
+
+**Example:** `GET /api/analytics/my-app/queries?search=SELECT%20*%20FROM` returns all queries starting with `SELECT * FROM`
