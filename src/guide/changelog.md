@@ -15,7 +15,7 @@ All notable changes to Boltstore are documented here.
 ### Performance
 
 - **Admin dashboard: 5 analytics endpoints now run in parallel** — The analytics page fetched overview, database stats, volume, top queries, and errors sequentially (5 sequential `await` calls). All 5 now fire simultaneously via `Promise.allSettled()`, reducing page load time by ~2-3x.
-- **Server-side response caching** — Analytics overview, databases, and volume endpoints now cache responses in memory for 15 seconds (configurable TTL). Subsequent requests within the TTL window return cached `Response` objects directly, reducing SQLite query load to near zero.
+- **Server-side response caching** — Analytics overview, databases, and volume endpoints now cache responses in memory for 60 seconds (configurable TTL). Subsequent requests within the TTL window return cached `Response` objects directly, reducing SQLite query load to near zero.
 - **Session token caching** — SHA-256 session lookups are cached for 60 seconds, reducing repeated `_sessions` table queries on every admin request.
 - **Batch schema endpoint** — The database detail page now fetches all table schemas in a single `GET /api/databases/:db/tables/schema` call instead of N+1 sequential requests. Returns all `CREATE TABLE` statements in one response.
 
