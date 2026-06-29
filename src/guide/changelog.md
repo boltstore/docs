@@ -12,6 +12,7 @@ All notable changes to Boltstore are documented here.
 
 - **Admin UI: 16 pre-existing type errors fixed** — Missing type re-exports in `client.ts`, `DataTable.vue` template ref callback, CSS module declaration in `env.d.ts`, implicit `any` params in `Activities.vue`, missing `group` field on `DatabaseInfo`, and removed unused `t.operation` reference in `DatabaseDetail.vue`.
 - **Admin UI: Error feedback for rename database/table** — Renaming a database or table now shows validation errors inline in the UI instead of silently failing.
+- **Admin UI: Activities page showing `[object Object]` in event column** — Config/settings update events store the full config objects in `details.from` and `details.to`. The `formatDetail` function coerced objects to `[object Object]` via template literals. Now shows `Changed: cors, read_only` for config updates, and falls back to listing detail keys for other object shapes.
 
 ### Changed
 
