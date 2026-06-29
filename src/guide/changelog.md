@@ -6,7 +6,12 @@ title: Changelog — Boltstore
 
 All notable changes to Boltstore are documented here.
 
-## v1.0.2 — 2026-06-29
+## v1.0.2 — 2026-06-30
+
+### Fixed
+
+- **Admin UI: 16 pre-existing type errors fixed** — Missing type re-exports in `client.ts`, `DataTable.vue` template ref callback, CSS module declaration in `env.d.ts`, implicit `any` params in `Activities.vue`, missing `group` field on `DatabaseInfo`, and removed unused `t.operation` reference in `DatabaseDetail.vue`.
+- **Admin UI: Error feedback for rename database/table** — Renaming a database or table now shows validation errors inline in the UI instead of silently failing.
 
 ### Changed
 

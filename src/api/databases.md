@@ -73,7 +73,11 @@ Returns details for a specific database. Accepts an API key or admin session.
 { "name": "new-name" }
 ```
 
-Renames the database and its underlying file.
+Renames the database and its underlying file. API keys are automatically updated to reference the new name.
+
+::: warning
+Analytics tables (`_query_log`, `_storage_snapshots`, `_daily_stats`, `_daily_queries`) and the activity log are updated to reflect the new name. Only entries created by this server with analytics enabled are affected — external records are not migrated.
+:::
 
 ## Delete Database
 
