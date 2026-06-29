@@ -8,19 +8,21 @@ All notable changes to Boltstore are documented here.
 
 ## v1.0.2 — 2026-06-30
 
+### Changed
+
+- **API keys now have full database access** — API keys can execute any SQL via `/query` (DDL, DML, `SELECT`, `PRAGMA`, `ATTACH`, etc.), manage config (`/config`), manage keys (`/keys`), export their database, view database details, view per-database analytics, and fetch batch schemas. Previously these operations required admin credentials. Import and database deletion remain admin-only.
+- **Export accepts API keys** — `/api/databases/:name/export` now accepts a per-database API key alongside admin sessions.
+- **UUID-based database identity (v3 migration)** — Databases now have a stable UUID (`id`) that survives renames. Child tables (`_api_keys`, analytics, activity) reference by UUID instead of name. On rename, only `_databases.name`, `_databases.file_path`, `_api_keys.database_name`, and analytics `database` columns are updated — all historical records carry over automatically.
+
 ### Fixed
 
 - **Admin UI: 16 pre-existing type errors fixed** — Missing type re-exports in `client.ts`, `DataTable.vue` template ref callback, CSS module declaration in `env.d.ts`, implicit `any` params in `Activities.vue`, missing `group` field on `DatabaseInfo`, and removed unused `t.operation` reference in `DatabaseDetail.vue`.
 - **Admin UI: Error feedback for rename database/table** — Renaming a database or table now shows validation errors inline in the UI instead of silently failing.
 - **Admin UI: Activities page showing `[object Object]` in event column** — Config/settings update events store the full config objects in `details.from` and `details.to`. The `formatDetail` function coerced objects to `[object Object]` via template literals. Now shows `Changed: cors, read_only` for config updates, and falls back to listing detail keys for other object shapes.
-
-### Changed
-
-- **API keys now have full database access** — API keys can execute any SQL via `/query` (DDL, DML, `SELECT`, `PRAGMA`, `ATTACH`, etc.), manage config (`/config`), manage keys (`/keys`), export their database, view database details, view per-database analytics, and fetch batch schemas. Previously these operations required admin credentials. Import and database deletion remain admin-only.
-- **Export accepts API keys** — `/api/databases/:name/export` now accepts a per-database API key alongside admin sessions.
-
-### Fixed
-
+- **Rename database 500 error** — After renaming, the old pool's SQLite connections still pointed at the deleted file. Now creates a new `DatabasePool` for the renamed file instead of reusing the closed one.
+- **Rename database: analytics cache stale for up to 60s** — The analytics response cache was not invalidated on rename, so the dashboard showed the old name (or zeros) until the 60s TTL expired. Now invalidates all analytics caches immediately.
+- **Rename database: activity log not updated** — `_activity_log.database_name` was not updated on rename, so the Activities page showed the old name for historical entries. Now updated alongside `_api_keys.database_name`.
+- **Rename database: top queries showing old database name** — Analytics tables (`_daily_stats`, `_daily_queries`, `_query_log`, `_storage_snapshots`) were updated _after_ the meta rename, allowing concurrent requests to flush new rows under the new name and violate `UNIQUE(database, date, sql_text)`. Moved analytics UPDATE before the meta rename so no race is possible.
 - **Search with multiple fields crashes with SQLite bind mismatch** — The record listing endpoint (`GET /api/databases/:db/tables/:table/records`) pushed 1 search bind value but generated N SQL placeholders (one per field). Now pushes one value per field, matching the placeholder count.
 - **Analytics cache broken on first hit after startup** — Cached `Response` objects have single-use body streams, causing "Expected JSON but got : " errors on the second hit. Changed to cache raw data objects and reconstruct the response on each hit.
 
