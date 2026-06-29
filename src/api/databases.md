@@ -4,7 +4,7 @@ title: Databases API
 
 # Databases API
 
-Database management endpoints. All require admin authentication.
+Database management endpoints. List, create, and delete require admin authentication. Viewing a database detail, managing config, and managing keys accept an API key or admin session.
 
 ## Database Name Rules
 
@@ -63,7 +63,7 @@ curl -X POST http://localhost:8080/api/databases \
 
 <span class="method-badge method-get">GET</span> <code class="endpoint-path">/api/databases/:name</code>
 
-Returns details for a specific database.
+Returns details for a specific database. Accepts an API key or admin session.
 
 ## Rename Database
 
@@ -85,11 +85,11 @@ Permanently deletes the database and all its data.
 
 <span class="method-badge method-get">GET</span> <code class="endpoint-path">/api/databases/:name/config</code>
 
-Get per-database configuration (CORS origins, read-only flag, group).
+Get per-database configuration (CORS origins, read-only flag, group). Accepts an API key or admin session.
 
 <span class="method-badge method-patch">PATCH</span> <code class="endpoint-path">/api/databases/:name/config</code>
 
-Update per-database configuration. Only `cors_origins` and `readonly` keys are allowed.
+Update per-database configuration. Accepts an API key or admin session. Only `cors_origins` and `readonly` keys are allowed.
 
 ```json
 {
@@ -101,7 +101,7 @@ Update per-database configuration. Only `cors_origins` and `readonly` keys are a
 
 <span class="method-badge method-get">GET</span> <code class="endpoint-path">/api/databases/:name/keys</code>
 
-List API keys for the database.
+List API keys for the database. Accepts an API key or admin session.
 
 <span class="method-badge method-post">POST</span> <code class="endpoint-path">/api/databases/:name/keys</code>
 
@@ -129,7 +129,7 @@ Revoke an API key.
 
 <span class="method-badge method-post">POST</span> <code class="endpoint-path">/api/databases/:name/export</code>
 
-Exports the database file using `VACUUM INTO`. Returns the `.db` file as a download.
+Exports the database file using `VACUUM INTO`. Returns the `.db` file as a download. Accepts an API key or admin session.
 
 ## Import
 

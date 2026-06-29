@@ -8,6 +8,11 @@ All notable changes to Boltstore are documented here.
 
 ## v1.0.2 — 2026-06-29
 
+### Changed
+
+- **API keys now have full database access** — API keys can execute any SQL via `/query` (DDL, DML, `SELECT`, `PRAGMA`, `ATTACH`, etc.), manage config (`/config`), manage keys (`/keys`), export their database, view database details, view per-database analytics, and fetch batch schemas. Previously these operations required admin credentials. Import and database deletion remain admin-only.
+- **Export accepts API keys** — `/api/databases/:name/export` now accepts a per-database API key alongside admin sessions.
+
 ### Fixed
 
 - **Search with multiple fields crashes with SQLite bind mismatch** — The record listing endpoint (`GET /api/databases/:db/tables/:table/records`) pushed 1 search bind value but generated N SQL placeholders (one per field). Now pushes one value per field, matching the placeholder count.

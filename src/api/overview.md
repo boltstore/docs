@@ -117,7 +117,7 @@ Returns a list of all databases. Requires admin session.
   <code style="font-family: var(--font-mono); font-size: 0.8125rem; background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: 4px; padding: 0.125rem 0.5rem;">/api/databases/:name</code>
 </div>
 
-Returns a single database with its tables. Requires admin session.
+Returns a single database with its tables. Accepts an API key or admin session.
 
 ### Rename Database
 
@@ -147,7 +147,7 @@ curl -X PATCH http://localhost:8080/api/databases/my-app \
   <code style="font-family: var(--font-mono); font-size: 0.8125rem; background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: 4px; padding: 0.125rem 0.5rem;">/api/databases/:name/config</code>
 </div>
 
-Get or update per-database configuration (CORS origins, readonly flag, group). Requires admin session.
+Get or update per-database configuration (CORS origins, readonly flag, group). Accepts an API key or admin session.
 
 ### Create Database
 
@@ -181,7 +181,7 @@ Permanently deletes a database and its file. This action cannot be undone. Requi
   <code style="font-family: var(--font-mono); font-size: 0.8125rem; background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: 4px; padding: 0.125rem 0.5rem;">/api/databases/:name/keys</code>
 </div>
 
-Creates a new per-database API key. The raw key is returned only once. Requires admin session.
+Creates a new per-database API key. The raw key is returned only once. Accepts an API key or admin session.
 
 <pre class="code-block">curl -X POST http://localhost:8080/api/databases/my-app/keys \
 -H <span class="code-string">'Authorization: Bearer &lt;session-token&gt;'</span> \
@@ -208,7 +208,7 @@ Creates a new per-database API key. The raw key is returned only once. Requires 
   <code style="font-family: var(--font-mono); font-size: 0.8125rem; background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: 4px; padding: 0.125rem 0.5rem;">/api/databases/:name/keys/:id</code>
 </div>
 
-Rotate generates a new key string (old key stops working). Revoke permanently deletes the key. Both require admin session.
+Rotate generates a new key string (old key stops working). Revoke permanently deletes the key. Both accept an API key or admin session.
 
 ## Tables
 
@@ -348,7 +348,7 @@ Standard CRUD on a single record by ID. Accessible with an API key or admin sess
 
 Execute parameterised SQL. Accepts `{ sql: string, params?: unknown[] }`.
 
-**Policy:** Non-admin API keys may only execute `SELECT` statements. `INSERT`, `UPDATE`, `DELETE`, `CREATE`, `ALTER`, `DROP`, and other write statements require an admin key or session. If the database is in read-only mode, writes are rejected for everyone.
+**Policy:** API keys may execute any SQL statement — `SELECT`, `INSERT`, `UPDATE`, `DELETE`, `CREATE`, `ALTER`, `DROP`, `PRAGMA`, `ATTACH`, etc. If the database is in read-only mode, writes are rejected for everyone. `ATTACH DATABASE` paths must be within the server data directory.
 
 <pre class="code-block">curl -X POST http://localhost:8080/api/databases/my-app/query \
 -H <span class="code-string">'Authorization: Bearer boltstore_...'</span> \
@@ -370,7 +370,7 @@ Execute parameterised SQL. Accepts `{ sql: string, params?: unknown[] }`.
   <code style="font-family: var(--font-mono); font-size: 0.8125rem; background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: 4px; padding: 0.125rem 0.5rem;">/api/databases/:name/export</code>
 </div>
 
-Exports the database to a `.db` file via `VACUUM INTO`. Requires admin session.
+Exports the database to a `.db` file via `VACUUM INTO`. Accepts an API key or admin session.
 
 **Response:** Binary `application/octet-stream` stream of the `.db` file (NOT JSON). Save the response body directly to a `.db` file.
 

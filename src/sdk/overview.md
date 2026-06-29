@@ -91,19 +91,18 @@ Supported operators: `eq`, `ne`, `gt`, `gte`, `lt`, `lte`, `in`, `like`, `glob`.
 
 ## Raw SQL
 
-<pre class="code-block"><span class="code-comment">// SELECT only for non-admin keys; DDL/DML requires admin</span>
+<pre class="code-block"><span class="code-comment">// Execute any SQL — SELECT, INSERT, UPDATE, DELETE, DDL, PRAGMA, etc.</span>
 <span class="code-keyword">const</span> rows = <span class="code-keyword">await</span> client.sql&lt;{ id: number; title: string }&gt;(
 <span class="code-string">'SELECT id, title FROM posts WHERE views &gt; ? ORDER BY id'</span>,
 [<span class="code-number">0</span>],
 );</pre>
 
-## Admin Operations
+## Database Operations
 
-These methods require an admin session token:
+These methods accept either a per-database API key or an admin session token (except `import` and `delete`, which require admin):
 
-<pre class="code-block"><span class="code-comment">// Database info / delete / export</span>
+<pre class="code-block"><span class="code-comment">// Database info / export</span>
 <span class="code-keyword">const</span> info = <span class="code-keyword">await</span> client.info();
-<span class="code-keyword">await</span> client.delete();
 <span class="code-keyword">const</span> blob = <span class="code-keyword">await</span> client.export();
 <span class="code-comment">// Per-database config</span>
 <span class="code-keyword">const</span> config = <span class="code-keyword">await</span> client.config.get();
@@ -112,7 +111,9 @@ These methods require an admin session token:
 <span class="code-keyword">const</span> keys = <span class="code-keyword">await</span> client.keys.list();
 <span class="code-keyword">const</span> newKey = <span class="code-keyword">await</span> client.keys.create(<span class="code-string">'Production Backend'</span>);
 <span class="code-keyword">await</span> client.keys.rotate(newKey.id);
-<span class="code-keyword">await</span> client.keys.revoke(newKey.id);</pre>
+<span class="code-keyword">await</span> client.keys.revoke(newKey.id);
+<span class="code-comment">// Database deletion (admin only)</span>
+<span class="code-keyword">await</span> client.delete();</pre>
 
 ## Health Check
 
@@ -121,9 +122,7 @@ These methods require an admin session token:
 
 ## Authentication Model
 
-The SDK holds a single `key` used for every request. Methods that hit admin routes (`info`, `delete`, `export`, `config.*`, `keys.*`) require an admin session token. Methods that hit data routes (`tables.*`, `table()`, `records`, `sql`) accept either a per-database API key or an admin credential.
-
-If you only have a per-database API key, use `tables`, `table()`, `list`, and `sql()`. Calling `info()` or `keys.list()` will return `401 Unauthorized`.
+The SDK holds a single `key` used for every request. Most methods (`info`, `export`, `config.*`, `keys.*`, `tables.*`, `table()`, `sql()`) accept either a per-database API key or an admin session token. Only `import` and `delete` require admin credentials.
 
 ## Known Issues
 
