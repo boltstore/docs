@@ -53,9 +53,10 @@ Daily aggregated query counts used for fast dashboard loading.
 | `date` | TEXT | Date string, `2026-06-30` |
 | `database_name` | TEXT | Target database name |
 | `database_id` | TEXT | Stable UUID referencing the database |
-| `operation` | TEXT | `select`, `insert`, `update`, `delete`, `raw_query` |
+| `operation` | TEXT | `select`, `insert`, `update`, `delete`, or `raw_query` |
 | `count` | INTEGER | Query count for that operation on that day |
 | `rows_read` | INTEGER | Rows returned for SELECT operations |
+| `rows_written` | INTEGER | Rows returned + rows affected for write operations |
 
 **Note on the composite unique constraint:** `UNIQUE (database_id, date, operation)` prevents race conditions with concurrent flush requests.
 
@@ -65,7 +66,7 @@ Daily aggregated query patterns used for analytics dashboards.
 
 | Column | Type | Description |
 |---|---|---|
-| `date` | TEXT | Date string, `2026-06-30` |
+| `date` | TEXT | Date string (`2026-06-30`) |
 | `database_name` | TEXT | Target database name |
 | `database_id` | TEXT | Stable UUID referencing the database |
 | `sql_text` | TEXT | SQL query text, or `NULL` for CRUD (e.g., `SELECT * FROM users WHERE active = ?`) |
@@ -74,7 +75,7 @@ Daily aggregated query patterns used for analytics dashboards.
 
 **Note on the composite unique constraint:** `UNIQUE (database_id, date, sql_text)` prevents race conditions. For CRUD queries, the `sql_text` pattern is derived from the constructed template.
 
-## Range Parameter
+## Analytics Query Parameters
 
 All analytics endpoints accept a `?range=` query parameter that controls the time window and grouping:
 
@@ -106,7 +107,7 @@ Aggregated stats across all databases.
 <span class="code-string">"rows_written"</span>: <span class="code-number">3510</span>,
 <span class="code-string">"totalStorageBytes"</span>: <span class="code-number">52428800</span>
 }
-}</pre>
+</pre>
 
 | Field | Description |
 |---|---|
@@ -128,28 +129,42 @@ Aggregated stats across all databases.
 
 Per-database stats, plus the top 10 tables by call count.
 
-<pre class="code-block">{
-<span class="code-string">"data"</span>: {
-<span class="code-string">"database"</span>: <span class="code-string">"my-app"</span>,
-<span class="code-string">"queries"</span>: <span class="code-number">8234</span>,
-<span class="code-string">"writes"</span>: <span class="code-number">1203</span>,
-<span class="code-string">"rows_read"</span>: <span class="code-number">48293</span>,
-<span class="code-string">"avgLatencyMs"</span>: <span class="code-number">1.8</span>,
-<span class="code-string">"errorCount"</span>: <span class="code-number">5</span>,
-<span class="code-string">"storageBytes"</span>: <span class="code-number">16777216</span>,
-<span class="code-string">"tableCount"</span>: <span class="code-number">4</span>,
-<span class="code-string">"topTables"</span>: [
-{ <span class="code-string">"sql_text"</span>: <span class="code-string">"SELECT * FROM \"users\" WHERE active = ?"</span>, <span class="code-string">"calls"</span>: <span class="code-number">4210</span>, <span class="code-string">"avg_ms"</span>: <span class="code-number">0.5</span>, <span class="code-string">"writes"</span>: <span class="code-number">202</span>, <span class="code-string">"total_rows"</span>: <span class="code-number">14212</span> }
-]
+Predefined response structure:
+
+```json
+{
+  "data": {
+    "database": "my-app",
+    "queries": 8234,
+    "writes": 1203,
+    "rows_read": 48293,
+    "avgLatencyMs": 1.8,
+    "errorCount": 5,
+    "storageBytes": 16777216,
+    "tableCount": 4,
+    "topTables": [
+      {
+        "sql_text": "SELECT * FROM \"users\" WHERE active = ?",
+        "calls": 4210,
+        "avg_ms": 0.5,
+        "writes": 202,
+        "total_rows": 14212
+      }
+    ]
+  }
 }
-}</pre>
+```
 
 | Field | Description |
 |---|---|
 | `queries` | Total query count (SELECT + writes + errors) in the time window |
 | `writes` | Count of INSERT/UPDATE/DELETE operations |
 | `rows_read` | Sum of `row_count` across all operations (rows returned + rows affected) |
-| `topTables` | Top 10 query patterns by call count. `sql_text` is the SQL text (or operation name for CRUD). `total_rows` is the sum of `row_count` across all matching operations |
+| `avgLatencyMs` | Average query latency |
+| `errorCount` | Number of failed queries |
+| `storageBytes` | Current storage size of the database |
+| `tableCount` | Number of user tables |
+| `topTables` | Top 10 query patterns by call count with metadata |
 
 ### Query Log
 
@@ -160,12 +175,11 @@ Per-database stats, plus the top 10 tables by call count.
 
 Paginated query log for a specific database. Returns the raw log entries sorted by most recent first.
 
-| Query Param | Default | Description |
-|---|---|---|
-| `limit` | 20 | Max rows (max 100) |
-| `offset` | 0 | Pagination offset |
+**Query Parameters:**
+- `limit`: Max rows (max 100, default 20)
+- `offset`: Pagination offset (default 0)
 
-Response includes `meta.total` for the total matching entry count in the time window.
+**Response includes `meta.total`** for the total matching entry count in the time window.
 
 ### Top Queries (All Databases)
 
@@ -176,19 +190,32 @@ Response includes `meta.total` for the total matching entry count in the time wi
 
 Top 1 query pattern per database (most-called query), sorted by call count descending. Grouped by `COALESCE(sql_text, operation)` to capture raw SQL and CRUD operations together.
 
-<pre class="code-block">{
-<span class="code-string">"data"</span>: [
-{
-<span class="code-string">"database"</span>: <span class="code-string">"my-app"</span>,
-<span class="code-string">"sql_text"</span>: <span class="code-string">"SELECT * FROM \"users\" WHERE active = ?"</span>,
-<span class="code-string">"calls"</span>: <span class="code-number">4008</span>,
-<span class="code-string">"avg_ms"</span>: <span class="code-number">0.5</span>,
-<span class="code-string">"total_rows"</span>: <span class="code-number">14000</span>
-}
-]
-}</pre>
+**Response structure:**
 
-Raw SQL queries (no table context) appear as their SQL text; record CRUD operations show their constructed SQL template.
+```json
+{
+  "data": [
+    {
+      "database": "my-app",
+      "sql_text": "SELECT * FROM \"users\" WHERE active = ?",
+      "calls": 4008,
+      "avg_ms": 0.5,
+      "total_rows": 14000
+    }
+  ]
+}
+```
+
+**Response structure details:**
+- `data`: Array of query objects
+- Each object contains:
+  - `database`: Database name
+  - `sql_text`: The SQL query text (or operation name for raw SQL)
+  - `calls`: Number of calls (query executions)
+  - `avg_ms`: Average execution time in milliseconds
+  - `total_rows`: Total rows returned or affected
+
+**Note:** Raw SQL queries (no table context) appear as their SQL text; record CRUD operations show their constructed SQL template.
 
 ### Errors
 
@@ -208,29 +235,38 @@ Recent failed queries, sorted by most recent first.
 
 Time-series data suitable for chart rendering. Returns evenly-spaced slots (hours for 24h, days for 7d, ISO weeks for 30d) with query counts and errors per slot.
 
-<pre class="code-block">{
-<span class="code-string">"data"</span>: {
-<span class="code-string">"slots"</span>: [<span class="code-string">"00"</span>, <span class="code-string">"01"</span>, <span class="code-string">"02"</span>, <span class="code-string">"03"</span>],
-<span class="code-string">"counts"</span>: [<span class="code-number">120</span>, <span class="code-number">85</span>, <span class="code-number">42</span>, <span class="code-number">18</span>],
-<span class="code-string">"errors"</span>: [<span class="code-number">0</span>, <span class="code-number">1</span>, <span class="code-number">0</span>, <span class="code-number">0</span>],
-<span class="code-string">"rows_read"</span>: [<span class="code-number">480</span>, <span class="code-number">340</span>, <span class="code-number">168</span>, <span class="code-number">72</span>],
-<span class="code-string">"rows_written"</span>: [<span class="code-number">24</span>, <span class="code-number">10</span>, <span class="code-number">6</span>, <span class="code-number">2</span>],
-<span class="code-string">"max"</span>: <span class="code-number">120</span>,
-<span class="code-string">"max_read"</span>: <span class="code-number">480</span>,
-<span class="code-string">"max_written"</span>: <span class="code-number">24</span>
-}
-}</pre>
+**Response structure:**
 
-| Field | Description |
-|---|---|
-| `slots` | Time slot labels (hour `"00"`–`"23"`, date `"2026-01-01"`, or ISO week `"2026-01"`) |
-| `counts` | Query count per slot, in the same order |
-| `errors` | Error count per slot |
-| `rows_read` | Total rows read (SELECT) per slot |
-| `rows_written` | Total rows written (INSERT/UPDATE/DELETE) per slot |
-| `max` | Maximum query count across all slots (for chart Y-axis scaling) |
-| `max_read` | Maximum rows_read across all slots |
-| `max_written` | Maximum rows_written across all slots |
+```json
+{
+  "data": {
+    "slots": ["00", "01", "02", "03"],
+    "counts": [120, 85, 42, 18],
+    "errors": [0, 1, 0, 0],
+    "rows_read": [480, 340, 168, 72],
+    "rows_written": [24, 10, 6, 2],
+    "max": 120,
+    "max_read": 480,
+    "max_written": 24
+  }
+}
+```
+
+**Response fields:**
+- `data`: Object containing analytics data
+- `data.slots`: Time slot labels (hour `"00"`–`"23"`, date `"2026-01-01"`, or ISO week `"2026-01"`)
+- `data.counts`: Query count per slot, in the same order
+- `data.errors`: Error count per slot
+- `data.rows_read`: Total rows read (SELECT) per slot
+- `data.rows_written`: Total rows written (INSERT/UPDATE/DELETE) per slot
+- `data.max`: Maximum query count across all slots (for chart Y-axis scaling)
+- `data.max_read`: Maximum rows_read across all slots
+- `data.max_written`: Maximum rows_written across all slots
+
+**Implementation details:**
+- Generated from 5-second aggregation window
+- Aggregates data inserted into `_daily_stats`, `_daily_queries`, and `_query_log` tables
+- Prefers analytics data (reducing load on server operations)
 
 ### Storage History
 
@@ -339,3 +375,11 @@ The analytics endpoints (queries, top-queries, errors) accept optional `?search=
 Case-insensitive prefix matching (SQLite's `LIKE :search`).
 
 **Example:** `GET /api/analytics/my-app/queries?search=SELECT%20*%20FROM` returns all queries starting with `SELECT * FROM`
+
+## Permission Notes
+
+- Volume endpoint (`/api/analytics/volume`) was historically incompatible with cross-database preview functionality due to timezone handling issues.
+- Charts and cards APIs do not share the same generation logic, which can lead to counting discrepancies between the two views.
+- The volume endpoint response schema was previously under-documented, contributing to confusion about expected data structure.
+- Analytics data aggregation involves complex timezone considerations across different time windows.
+
