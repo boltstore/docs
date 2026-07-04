@@ -6,7 +6,7 @@ title: Changelog — Boltstore
 
 All notable changes to Boltstore are documented here.
 
-## v1.0.3
+## v1.0.3 - 2026-07-05
 
 ### Fixed
 
