@@ -6,6 +6,36 @@ title: Changelog — Boltstore
 
 All notable changes to Boltstore are documented here.
 
+## v1.0.3
+
+### Fixed
+
+- **Analytics charts now show accurate data** — Fixed issues with volume endpoint and overview endpoint disagreeing on counts, corrected timezone offset handling near DST transitions, fixed 24h slot labels to include dates for clarity across midnight, and fixed 30d chart to properly aggregate all 7 days per weekly slot instead of only showing Sunday queries.
+- **Volume endpoint uses pre-aggregated tables** — Queries now read from `_daily_stats` table instead of scanning raw `_query_log`, and top queries now query the pre-aggregated `_daily_queries` table for better performance.
+- **Database delete properly cleans up analytics storage** — When a database is deleted, its analytics snapshots (`_storage_snapshots`, `_daily_stats`, `_daily_queries`, `_query_log`) are now properly removed, fixing inflated storage totals.
+- **Analytics responses refresh automatically after import** — Analytics snapshot is now properly awaited during database import, eliminating the need to restart or manually refresh the admin dashboard to see imported database analytics.
+- **Admin UI refreshes on mutations and navigation** — The admin dashboard refreshes data immediately after any database operation (create, import, delete, rename) and loads fresh state when navigating between pages, eliminating unnecessary network traffic while keeping the UI in sync with the server.
+- **Response cache includes authentication information** — Cache keys now incorporate authentication data, preventing one user from seeing another user's cached responses.
+- **Import clears stale cache data** — After successfully importing a database, the response cache is now cleared to prevent stale analytics data from being served.
+
+### Changed
+
+- **Universal refresh button in admin header** — Added a refresh button to the admin header that invalidates all caches and reloads the current page's data on demand.
+- **Expanded 30d chart coverage** — The 30-day chart now covers 7 days (6 weekly slots) instead of 5, including the current incomplete week for complete historical view.
+- **7d chart label alignment** — The 7-day chart now correctly anchors to current time and properly labels the rightmost slot with the start date.
+
+### Security
+
+- **Rate limiting implemented on admin endpoints** — Admin data endpoints now have rate limiting to prevent abuse.
+- **ATTACH DATABASE path validation hardened** — Added stricter validation to prevent database path traversal attacks.
+- **Password complexity requirements enforced** — Passwords must now meet minimum length and complexity requirements.
+
+### Performance
+
+- **Analytics buffer size limits** — Added configurable maximum buffer size to prevent unbounded memory growth.
+- **Analytics cache size limits** — Added configurable maximum cache size with LRU eviction policy.
+- **Reduced overhead in analytics snapshot calculations** — Optimized hot path operations and reduced unnecessary snapshot checks on overview and databases endpoints.
+
 ## v1.0.2 — 2026-06-30
 
 ### Changed
@@ -55,7 +85,7 @@ All notable changes to Boltstore are documented here.
 - **Docker: data persistence** — Switched from a Docker named volume (`boltstore-data`) to a bind mount (`./data:/app/data`) in `docker-compose.yml`. Data survives container/image deletion and is directly accessible on the host (macOS, Linux, Windows).
 - **`package.json` prepublish** — Now builds the admin dashboard before publishing.
 - **Volume chart: bar → line** — Small values (e.g., 10 next to 250) were nearly impossible to hover on a bar chart. Switched to a filled line chart with visible data points and `nearest` + `intersect: false` interaction so the tooltip triggers anywhere along the line.
-- **Compact number formatting** — Large numbers (queries, writes, rows, error counts) across the dashboard now display as `1.5K`, `1.2M` instead of raw `1,500`, `1,234,567`. Added `formatCompact()` utility used in metric cards, database lists, top queries, and activity totals.
+- **Compact number formatting** — Large numbers (queries, writes, rows, error counts) across the dashboard now display as `1.5K`, `1.2M` instead of raw `1,500`, `1,234,007`. Added `formatCompact()` utility used in metric cards, database lists, top queries, and activity totals.
 
 ## v1.0.0 — 2026-06-25
 
