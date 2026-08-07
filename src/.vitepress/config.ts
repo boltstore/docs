@@ -156,5 +156,6 @@ export default defineConfig({
     ["link", { rel: "icon", type: "image/svg+xml", href: '/favicon.svg' }],
     ["link", { rel: "preconnect", href: "https://fonts.bunny.net" }],
     ["link", { href: "https://fonts.bunny.net/css?family=inter:300,400,500,600,700,800|jetbrains-mono:400,500,600", rel: "stylesheet" }],
+    ["script", { defer: "", src: "https://go.xdev.run/script.js" }],
   ],
 });
