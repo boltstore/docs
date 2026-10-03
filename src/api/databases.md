@@ -101,7 +101,7 @@ Get per-database configuration (CORS origins, read-only flag, group). Accepts an
 
 <span class="method-badge method-patch">PATCH</span> <code class="endpoint-path">/api/databases/:name/config</code>
 
-Update per-database configuration. Accepts an API key or admin session. Only `cors_origins` and `readonly` keys are allowed.
+Update per-database configuration. Accepts an API key or admin session to update `cors_origins`, but modifying `readonly` strictly requires an admin session. Only `cors_origins` and `readonly` keys are allowed.
 
 ```json
 {
@@ -113,11 +113,11 @@ Update per-database configuration. Accepts an API key or admin session. Only `co
 
 <span class="method-badge method-get">GET</span> <code class="endpoint-path">/api/databases/:name/keys</code>
 
-List API keys for the database. Accepts an API key or admin session.
+List API keys for the database. Requires admin session/token.
 
 <span class="method-badge method-post">POST</span> <code class="endpoint-path">/api/databases/:name/keys</code>
 
-Create a new API key:
+Create a new API key. Requires admin session/token.
 
 ```json
 { "label": "My Backend Service" }
@@ -131,11 +131,11 @@ API keys are SHA-256 hashed at rest. Store the raw key securely — it cannot be
 
 <span class="method-badge method-post">POST</span> <code class="endpoint-path">/api/databases/:name/keys/:id/rotate</code>
 
-Rotate an API key. Returns a new key. The old key is immediately invalidated.
+Rotate an API key. Requires admin session/token. Returns a new key. The old key is immediately invalidated.
 
 <span class="method-badge method-delete">DELETE</span> <code class="endpoint-path">/api/databases/:name/keys/:id</code>
 
-Revoke an API key.
+Revoke an API key. Requires admin session/token.
 
 ## Batch Schema
 

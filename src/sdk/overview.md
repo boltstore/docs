@@ -99,15 +99,17 @@ Supported operators: `eq`, `ne`, `gt`, `gte`, `lt`, `lte`, `in`, `like`, `glob`.
 
 ## Database Operations
 
-These methods accept either a per-database API key or an admin session token (except `import` and `delete`, which require admin):
+These methods accept either a per-database API key or an admin session token (except `import`, `delete`, `keys.*` operations, and updating `readonly` config, which require admin):
 
 <pre class="code-block"><span class="code-comment">// Database info / export</span>
 <span class="code-keyword">const</span> info = <span class="code-keyword">await</span> client.info();
 <span class="code-keyword">const</span> blob = <span class="code-keyword">await</span> client.export();
-<span class="code-comment">// Per-database config</span>
+<span class="code-comment">// Database import (admin only)</span>
+<span class="code-keyword">const</span> imported = <span class="code-keyword">await</span> BoltstoreClient.import({ url: <span class="code-string">'http://localhost:8080'</span>, file: blob, name: <span class="code-string">'myapp-imported'</span> });
+<span class="code-comment">// Per-database config (updating readonly requires admin)</span>
 <span class="code-keyword">const</span> config = <span class="code-keyword">await</span> client.config.get();
 <span class="code-keyword">await</span> client.config.update({ cors_origins: [<span class="code-string">'https://myapp.com'</span>] });
-<span class="code-comment">// API key management</span>
+<span class="code-comment">// API key management (admin only)</span>
 <span class="code-keyword">const</span> keys = <span class="code-keyword">await</span> client.keys.list();
 <span class="code-keyword">const</span> newKey = <span class="code-keyword">await</span> client.keys.create(<span class="code-string">'Production Backend'</span>);
 <span class="code-keyword">await</span> client.keys.rotate(newKey.id);
@@ -122,7 +124,7 @@ These methods accept either a per-database API key or an admin session token (ex
 
 ## Authentication Model
 
-The SDK holds a single `key` used for every request. Most methods (`info`, `export`, `config.*`, `keys.*`, `tables.*`, `table()`, `sql()`) accept either a per-database API key or an admin session token. Only `import` and `delete` require admin credentials.
+The SDK holds a single `key` used for every request. Most data operations (`info`, `export`, `config.get`, `tables.*`, `table()`, `sql()`) accept either a per-database API key or an admin session token. Operations like `import`, `delete`, `keys.*` management, and modifying the `readonly` flag via `config.update` require admin credentials.
 
 ## Known Issues
 
